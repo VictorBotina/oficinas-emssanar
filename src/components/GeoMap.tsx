@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import L, { Map as LeafletMap, Marker } from 'leaflet';
 import type { Location, LocationInfo } from '@/types';
 import { executeSupabaseQuery } from "@/lib/supabase-utils";
+import { MapPin, Clock } from 'lucide-react';
 
 const markerHtml = (color: string) => `
   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">
@@ -29,12 +30,45 @@ L.Icon.Default.mergeOptions({
 
 
 const PopupContent = ({ data }: { data: LocationInfo }) => `
-  <div style="font-family: 'PT Sans', sans-serif; font-size: 14px; line-height: 1.5;">
-    <h3 style="font-weight: 700; font-size: 16px; margin: 0 0 8px; color: hsl(var(--card-foreground));">${data.municipio}, ${data.departamento}</h3>
-    <p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Dirección:</strong> ${data.direccion || 'No especificada'}</p>
-    <p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Horario:</strong> ${data.horario_atencion || 'No especificado'}</p>
-    ${data.servicios_sub ? `<p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Servicios Sub:</strong> ${data.servicios_sub}</p>` : ''}
-    ${data.servicios_cont ? `<p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Servicios Cont:</strong> ${data.servicios_cont}</p>` : ''}
+  <div class="p-1.5 max-w-sm font-sans" style="font-family: 'PT Sans', sans-serif;">
+    <div class="rounded-lg bg-card text-card-foreground">
+      <div class="p-4 border-b">
+        <h3 class="text-lg font-bold text-gray-800">${data.municipio}, ${data.departamento}</h3>
+      </div>
+      <div class="p-4 space-y-4 text-sm">
+        <div class="flex items-start gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-gray-500 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <div class="flex-1">
+            <p class="font-semibold text-gray-700">Dirección</p>
+            <p class="text-gray-600">${data.direccion || 'No especificada'}</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-gray-500 mt-0.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <div class="flex-1">
+            <p class="font-semibold text-gray-700">Horario</p>
+            <p class="text-gray-600">${data.horario_atencion || 'No especificado'}</p>
+          </div>
+        </div>
+        
+        <details class="group">
+          <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-gray-700">
+            Servicios Subsidiados
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 transition-transform group-open:rotate-180"><path d="m6 9 6 6 6-6"></path></svg>
+          </summary>
+          <p class="mt-2 text-gray-600">${data.servicios_sub || 'No disponibles'}</p>
+        </details>
+        
+        <details class="group">
+          <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-gray-700">
+            Servicios Contributivos
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 transition-transform group-open:rotate-180"><path d="m6 9 6 6 6-6"></path></svg>
+          </summary>
+          <p class="mt-2 text-gray-600">${data.servicios_cont || 'No disponibles'}</p>
+        </details>
+
+      </div>
+    </div>
   </div>
 `;
 
@@ -59,7 +93,7 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick }: GeoMapProps) => {
       return;
     }
 
-    marker.setPopupContent("Cargando información...").openPopup();
+    marker.setPopupContent('<div class="p-4 font-sans">Cargando información...</div>').openPopup();
 
     try {
       const data = await executeSupabaseQuery(
@@ -77,10 +111,10 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick }: GeoMapProps) => {
         marker.setPopupContent(PopupContent({ data: result.data }));
       } else {
         const message = result?.message || 'No se encontró información para esta ubicación.';
-        marker.setPopupContent(message);
+        marker.setPopupContent(`<div class="p-4 font-sans">${message}</div>`);
       }
     } catch (e: any) {
-      marker.setPopupContent(`Error al cargar: ${e.message || 'Error desconocido'}`);
+      marker.setPopupContent(`<div class="p-4 font-sans">Error al cargar: ${e.message || 'Error desconocido'}</div>`);
     }
   };
 
@@ -121,14 +155,11 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick }: GeoMapProps) => {
       locations.forEach(loc => {
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
         
-        // Initial simple popup
-        const initialPopupContent = `<b>${loc.nombre}</b><br>${loc.departamento}`;
+        const initialPopupContent = `<b>${loc.nombre}</b>`;
         marker.bindPopup(initialPopupContent);
         
         marker.on('click', () => {
-          // Notify the parent page to update filters
           onMarkerClick(loc.id_dane);
-          // Handle the API call and update the popup
           handleMarkerApiCall(loc.id_dane, marker);
         });
 
