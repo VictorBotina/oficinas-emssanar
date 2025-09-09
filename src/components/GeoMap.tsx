@@ -30,6 +30,7 @@ interface GeoMapProps {
   locations: Location[];
   center: [number, number];
   zoom: number;
+  selectedLocationInfo?: LocationInfo | null;
 }
 
 const createPopupContent = (info: LocationInfo) => `
@@ -42,10 +43,11 @@ const createPopupContent = (info: LocationInfo) => `
   </div>
 `;
 
-const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
+const GeoMap = ({ locations, center, zoom, selectedLocationInfo }: GeoMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
+  const popupRef = useRef<L.Popup | null>(null);
 
   useEffect(() => {
     if (mapContainerRef.current && !mapInstanceRef.current) {
@@ -76,37 +78,49 @@ const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
 
   useEffect(() => {
     const markers = markersRef.current;
-    if (markers) {
+    const map = mapInstanceRef.current;
+
+    if (markers && map) {
       markers.clearLayers();
       locations.forEach(loc => {
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
         
         marker.on('click', () => {
+          if (popupRef.current) {
+            popupRef.current.remove();
+          }
+
           const popup = L.popup({ minWidth: 250 });
+          popupRef.current = popup;
+
           popup
             .setLatLng([loc.latitud, loc.longitud])
             .setContent(`<div class="font-bold">${loc.nombre}</div><p>Loading details...</p>`)
-            .openOn(mapInstanceRef.current!);
-
-          fetch(`/api/location-info?id=${loc.id_dane}`)
-            .then(res => res.json())
-            .then(result => {
-              if (result.success) {
-                popup.setContent(createPopupContent(result.data));
-              } else {
-                popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Could not load details.</p>`);
-              }
-            })
-            .catch(() => {
-              popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Error fetching details.</p>`);
-            });
+            .openOn(map);
+          
+          if (selectedLocationInfo && selectedLocationInfo.municipio === loc.nombre) {
+            popup.setContent(createPopupContent(selectedLocationInfo));
+          } else {
+            fetch(`/api/location-info?id=${loc.id_dane}`)
+              .then(res => res.json())
+              .then(result => {
+                if (result.success) {
+                  popup.setContent(createPopupContent(result.data));
+                } else {
+                  popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Could not load details.</p>`);
+                }
+              })
+              .catch(() => {
+                popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Error fetching details.</p>`);
+              });
+          }
         });
 
         markers.addLayer(marker);
       });
     }
-  }, [locations]);
-
+  }, [locations, selectedLocationInfo]);
+  
   useEffect(() => {
     const cleanup = () => {
       if (mapInstanceRef.current) {
@@ -115,7 +129,6 @@ const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
       }
     };
     
-    // Cleanup on component unmount
     return cleanup;
   }, []);
 

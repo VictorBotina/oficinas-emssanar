@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import LocationDetails from "@/components/LocationDetails";
 
-import type { Location } from "@/types";
+import type { Location, LocationInfo } from "@/types";
 
 const GeoMap = dynamic(() => import("@/components/GeoMap"), {
   ssr: false,
@@ -30,6 +31,8 @@ export default function Home() {
   
   const [selectedDept, setSelectedDept] = React.useState<string>(ALL_DEPARTMENTS);
   const [selectedMuni, setSelectedMuni] = React.useState<string>(ALL_MUNICIPALITIES);
+  const [selectedLocationInfo, setSelectedLocationInfo] = React.useState<LocationInfo | null>(null);
+  const [isLocationInfoLoading, setIsLocationInfoLoading] = React.useState(false);
 
   React.useEffect(() => {
     fetch('/locations.json')
@@ -66,7 +69,41 @@ export default function Home() {
       setMunicipalities([]);
     }
     setSelectedMuni(ALL_MUNICIPALITIES);
+    setSelectedLocationInfo(null);
   }, [selectedDept, allLocations]);
+
+  React.useEffect(() => {
+    if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) {
+      setIsLocationInfoLoading(true);
+      fetch(`/api/location-info?id=${selectedMuni}`)
+        .then(res => res.json())
+        .then(result => {
+          if (result.success) {
+            setSelectedLocationInfo(result.data);
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Could not load location details.",
+            });
+            setSelectedLocationInfo(null);
+          }
+        })
+        .catch(() => {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch location details.",
+          });
+          setSelectedLocationInfo(null);
+        })
+        .finally(() => {
+          setIsLocationInfoLoading(false);
+        });
+    } else {
+      setSelectedLocationInfo(null);
+    }
+  }, [selectedMuni, toast]);
 
   const filteredLocations = React.useMemo(() => {
     if (selectedMuni !== ALL_MUNICIPALITIES) {
@@ -78,17 +115,23 @@ export default function Home() {
     return allLocations.filter(loc => String(loc.id_dane).length === 5);
   }, [selectedDept, selectedMuni, allLocations]);
   
-  const { center, zoom } = React.useMemo(() => {
+  const activeLocation = React.useMemo(() => {
     if (selectedMuni !== ALL_MUNICIPALITIES) {
-      const muni = allLocations.find(m => m.id_dane === selectedMuni);
-      if (muni) return { center: [muni.latitud, muni.longitud] as [number, number], zoom: 12 };
+      return allLocations.find(m => m.id_dane === selectedMuni);
     }
     if (selectedDept !== ALL_DEPARTMENTS) {
-      const dept = departments.find(d => d.id_dane === selectedDept);
-      if (dept) return { center: [dept.latitud, dept.longitud] as [number, number], zoom: 8 };
+      return departments.find(d => d.id_dane === selectedDept);
+    }
+    return undefined;
+  }, [selectedDept, selectedMuni, departments, allLocations]);
+
+  const { center, zoom } = React.useMemo(() => {
+    if (activeLocation) {
+      const zoomLevel = selectedMuni !== ALL_MUNICIPALITIES ? 12 : 8;
+      return { center: [activeLocation.latitud, activeLocation.longitud] as [number, number], zoom: zoomLevel };
     }
     return { center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM };
-  }, [selectedDept, selectedMuni, departments, allLocations]);
+  }, [activeLocation, selectedMuni]);
   
   const handleDeptChange = (value: string) => {
     setSelectedDept(value);
@@ -107,7 +150,7 @@ export default function Home() {
         </div>
       </header>
       <main className="flex-1 relative">
-        <div className="absolute top-4 left-4 z-10 w-full max-w-[300px] lg:max-w-[350px]">
+        <div className="absolute top-4 left-4 z-10 w-full max-w-[300px] lg:max-w-[350px] space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Filters</CardTitle>
@@ -144,9 +187,10 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+          <LocationDetails info={selectedLocationInfo} isLoading={isLocationInfoLoading} />
         </div>
         <div className="absolute inset-0 z-0">
-           <GeoMap locations={filteredLocations} center={center} zoom={zoom} />
+           <GeoMap locations={filteredLocations} center={center} zoom={zoom} selectedLocationInfo={selectedLocationInfo} />
         </div>
       </main>
     </div>
