@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { Location } from '@/types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 const markerHtml = (color: string) => `
   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">
@@ -44,8 +44,6 @@ interface GeoMapProps {
 }
 
 const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
-  const [map, setMap] = useState<L.Map | null>(null);
-
   const defaultCenter: [number, number] = [4.7110, -74.0721];
   const defaultZoom = 6;
   
@@ -58,41 +56,32 @@ const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
   } else if (locations.length > 0) {
     const totalLat = locations.reduce((acc, loc) => acc + loc.latitud, 0);
     const totalLng = locations.reduce((acc, loc) => acc + loc.longitud, 0);
-    center = [totalLat / locations.length, totalLng / locations.length];
-    zoom = 7;
+    if(locations.length > 0) {
+      center = [totalLat / locations.length, totalLng / locations.length];
+      zoom = 7;
+    }
   }
 
-  const displayMap = React.useMemo(
-    () => (
-      <MapContainer
-        center={center}
-        zoom={zoom}
-        scrollWheelZoom={true}
-        className="h-full w-full"
-        whenCreated={setMap}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {locations.map(loc => (
-          <Marker key={loc.id_dane} position={[loc.latitud, loc.longitud]} icon={defaultIcon}>
-            <Popup>
-              <div className="font-bold">{loc.nombre}</div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-    ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
   return (
-    <div>
-      {displayMap}
-      {map ? <MapViewUpdater center={center} zoom={zoom} /> : null}
-    </div>
+    <MapContainer
+      center={center}
+      zoom={zoom}
+      scrollWheelZoom={true}
+      className="h-full w-full"
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {locations.map(loc => (
+        <Marker key={loc.id_dane} position={[loc.latitud, loc.longitud]} icon={defaultIcon}>
+          <Popup>
+            <div className="font-bold">{loc.nombre}</div>
+          </Popup>
+        </Marker>
+      ))}
+      <MapViewUpdater center={center} zoom={zoom} />
+    </MapContainer>
   );
 };
 
