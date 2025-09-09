@@ -98,14 +98,14 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
-      <header className="flex items-center justify-between p-4 border-b shrink-0">
+      <header className="flex items-center justify-between p-4 border-b shrink-0 z-10 bg-background">
         <div className="flex items-center gap-2">
           <MapIcon className="h-8 w-8 text-accent" />
           <h1 className="text-2xl font-bold font-headline text-gray-800">GeoExplorer</h1>
         </div>
       </header>
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-4 p-4 overflow-hidden">
-        <div className="flex flex-col gap-4 h-full overflow-y-auto">
+      <main className="flex-1 relative">
+        <div className="absolute top-4 left-4 z-10 w-full max-w-[300px] lg:max-w-[350px]">
           <Card>
             <CardHeader>
               <CardTitle>Filters</CardTitle>
@@ -143,7 +143,7 @@ export default function Home() {
             </CardContent>
           </Card>
         </div>
-        <div className="rounded-lg overflow-hidden shadow-lg border h-full">
+        <div className="absolute inset-0 z-0">
            <GeoMap locations={filteredLocations} activeLocation={activeLocation} />
         </div>
       </main>
