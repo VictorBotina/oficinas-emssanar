@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import LocationDetails from "@/components/LocationDetails";
+import DebugConsole from "@/components/DebugConsole";
 
 import type { Location, LocationInfo } from "@/types";
 
@@ -33,12 +34,24 @@ export default function Home() {
   const [selectedMuni, setSelectedMuni] = React.useState<string>(ALL_MUNICIPALITIES);
   const [selectedLocationInfo, setSelectedLocationInfo] = React.useState<LocationInfo | null>(null);
   const [isLocationInfoLoading, setIsLocationInfoLoading] = React.useState(false);
+  const [logs, setLogs] = React.useState<string[]>(['Debug console initialized. Waiting for interaction...']);
+
+  const addLog = (log: string) => {
+    setLogs(prevLogs => [log, ...prevLogs]);
+  }
 
   React.useEffect(() => {
+    addLog("Attempting to fetch initial location data from /locations.json");
     fetch('/locations.json')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
         if (!Array.isArray(data) || data.some(item => !item.id_dane || !item.nombre || item.latitud === undefined || item.longitud === undefined)) {
+          addLog("Error: /locations.json file is not in the correct format.");
           toast({
             variant: "destructive",
             title: "Invalid File",
@@ -46,11 +59,13 @@ export default function Home() {
           });
           return;
         }
+        addLog("Successfully fetched and parsed /locations.json.");
         setAllLocations(data);
         const depts = data.filter(loc => String(loc.id_dane).length === 2 || String(loc.id_dane).length === 1).sort((a, b) => a.nombre.localeCompare(b.nombre));
         setDepartments(depts);
       })
-      .catch(() => {
+      .catch((error) => {
+        addLog(`Error fetching /locations.json: ${error.message}`);
         toast({
           variant: "destructive",
           title: "Failed to load data",
@@ -61,6 +76,7 @@ export default function Home() {
   
   React.useEffect(() => {
     if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
+      addLog(`Department selected: ${selectedDept}. Filtering municipalities.`);
       const munis = allLocations
         .filter(loc => String(loc.id_dane).length === 5 && String(loc.id_dane).startsWith(selectedDept))
         .sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -75,21 +91,32 @@ export default function Home() {
   React.useEffect(() => {
     if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) {
       setIsLocationInfoLoading(true);
+      addLog(`Municipality selected: ${selectedMuni}. Fetching details from /api/location-info...`);
       fetch(`/api/location-info?id=${selectedMuni}`)
-        .then(res => res.json())
+        .then(res => {
+          addLog(`API response status: ${res.status}`);
+          if (!res.ok) {
+            throw new Error(`API returned status ${res.status}`);
+          }
+          return res.json();
+        })
         .then(result => {
+          addLog(`API response data: ${JSON.stringify(result, null, 2)}`);
           if (result.success) {
+            addLog("API call successful. Updating location details.");
             setSelectedLocationInfo(result.data);
           } else {
+            addLog(`API call failed: ${result.message}`);
             toast({
               variant: "destructive",
               title: "Error",
-              description: "Could not load location details.",
+              description: result.message || "Could not load location details.",
             });
             setSelectedLocationInfo(null);
           }
         })
-        .catch(() => {
+        .catch((error) => {
+          addLog(`Fetch error: ${error.message}`);
           toast({
             variant: "destructive",
             title: "Error",
@@ -102,6 +129,9 @@ export default function Home() {
         });
     } else {
       setSelectedLocationInfo(null);
+      if (selectedMuni === ALL_MUNICIPALITIES) {
+          addLog("Municipality selection cleared.");
+      }
     }
   }, [selectedMuni, toast]);
 
@@ -149,8 +179,8 @@ export default function Home() {
           <h1 className="text-2xl font-bold font-headline text-gray-800">GeoExplorer</h1>
         </div>
       </header>
-      <main className="flex-1 relative">
-        <div className="absolute top-4 left-4 z-10 w-full max-w-[300px] lg:max-w-[350px] space-y-4">
+      <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
+        <div className="lg:col-span-1 flex flex-col gap-4">
           <Card>
             <CardHeader>
               <CardTitle>Filters</CardTitle>
@@ -188,9 +218,12 @@ export default function Home() {
             </CardContent>
           </Card>
           <LocationDetails info={selectedLocationInfo} isLoading={isLocationInfoLoading} />
+          <DebugConsole logs={logs} />
         </div>
-        <div className="absolute inset-0 z-0">
-           <GeoMap locations={filteredLocations} center={center} zoom={zoom} selectedLocationInfo={selectedLocationInfo} />
+        <div className="lg:col-span-2 relative min-h-[400px] lg:min-h-0">
+          <div className="absolute inset-0 z-0 rounded-lg overflow-hidden">
+            <GeoMap locations={filteredLocations} center={center} zoom={zoom} selectedLocationInfo={selectedLocationInfo} onMarkerClick={addLog} />
+          </div>
         </div>
       </main>
     </div>

@@ -31,6 +31,7 @@ interface GeoMapProps {
   center: [number, number];
   zoom: number;
   selectedLocationInfo?: LocationInfo | null;
+  onMarkerClick?: (log: string) => void;
 }
 
 const createPopupContent = (info: LocationInfo) => `
@@ -43,7 +44,7 @@ const createPopupContent = (info: LocationInfo) => `
   </div>
 `;
 
-const GeoMap = ({ locations, center, zoom, selectedLocationInfo }: GeoMapProps) => {
+const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }: GeoMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
@@ -86,6 +87,7 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo }: GeoMapProps) 
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
         
         marker.on('click', () => {
+          onMarkerClick?.(`Marker clicked: ${loc.nombre} (${loc.id_dane}). Fetching details...`);
           if (popupRef.current) {
             popupRef.current.remove();
           }
@@ -99,18 +101,24 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo }: GeoMapProps) 
             .openOn(map);
           
           if (selectedLocationInfo && selectedLocationInfo.municipio === loc.nombre) {
+            onMarkerClick?.(`Details already loaded for ${loc.nombre}. Displaying from state.`);
             popup.setContent(createPopupContent(selectedLocationInfo));
           } else {
             fetch(`/api/location-info?id=${loc.id_dane}`)
-              .then(res => res.json())
+              .then(res => {
+                onMarkerClick?.(`API response status for ${loc.id_dane}: ${res.status}`);
+                return res.json()
+              })
               .then(result => {
+                onMarkerClick?.(`API response for ${loc.id_dane}: ${JSON.stringify(result)}`);
                 if (result.success) {
                   popup.setContent(createPopupContent(result.data));
                 } else {
                   popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Could not load details.</p>`);
                 }
               })
-              .catch(() => {
+              .catch((err) => {
+                onMarkerClick?.(`API fetch error for ${loc.id_dane}: ${err.message}`);
                 popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Error fetching details.</p>`);
               });
           }
@@ -119,7 +127,7 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo }: GeoMapProps) 
         markers.addLayer(marker);
       });
     }
-  }, [locations, selectedLocationInfo]);
+  }, [locations, selectedLocationInfo, onMarkerClick]);
   
   useEffect(() => {
     const cleanup = () => {
