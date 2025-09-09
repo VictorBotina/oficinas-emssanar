@@ -87,7 +87,7 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
         
         marker.on('click', () => {
-          onMarkerClick?.(`POST to Supabase with id_dane: ${loc.id_dane}`);
+          onMarkerClick?.(`Fetching details for id_dane: ${loc.id_dane}`);
           if (popupRef.current) {
             popupRef.current.remove();
           }
@@ -100,31 +100,27 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }
             .setContent(`<div class="font-bold">${loc.nombre}</div><p>Loading details...</p>`)
             .openOn(map);
           
-          if (selectedLocationInfo && selectedLocationInfo.municipio === loc.nombre) {
-            onMarkerClick?.(`API Response: ${JSON.stringify({success: true, data: selectedLocationInfo}, null, 2)}`);
-            popup.setContent(createPopupContent(selectedLocationInfo));
-          } else {
-            fetch(`/api/location-info?id=${loc.id_dane}`)
-              .then(res => res.json())
-              .then(result => {
-                onMarkerClick?.(`API Response: ${JSON.stringify(result, null, 2)}`);
-                if (result.success) {
-                  popup.setContent(createPopupContent(result.data));
-                } else {
-                  popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Could not load details.</p>`);
-                }
-              })
-              .catch((err) => {
-                onMarkerClick?.(`Fetch error: ${err.message}`);
-                popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Error fetching details.</p>`);
-              });
-          }
+          fetch(`/api/location-info?id=${loc.id_dane}`)
+            .then(res => res.json())
+            .then(result => {
+              onMarkerClick?.(`API Response: ${JSON.stringify(result, null, 2)}`);
+              if (result.error) {
+                popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>${result.error}</p>`);
+              } else {
+                popup.setContent(createPopupContent(result));
+              }
+            })
+            .catch((err) => {
+              const errorMessage = `Error fetching details: ${err.message}`;
+              onMarkerClick?.(errorMessage);
+              popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>${errorMessage}</p>`);
+            });
         });
 
         markers.addLayer(marker);
       });
     }
-  }, [locations, selectedLocationInfo, onMarkerClick]);
+  }, [locations, onMarkerClick]);
   
   useEffect(() => {
     const cleanup = () => {

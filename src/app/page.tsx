@@ -84,39 +84,40 @@ export default function Home() {
   }, [selectedDept, allLocations]);
 
   React.useEffect(() => {
-    if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) {
-      setIsLocationInfoLoading(true);
-      addLog(`POST to Supabase with id_dane: ${selectedMuni}`);
-      fetch(`/api/location-info?id=${selectedMuni}`)
-        .then(res => res.json())
-        .then(result => {
-          addLog(`API Response: ${JSON.stringify(result, null, 2)}`);
-          if (result.success) {
-            setSelectedLocationInfo(result.data);
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: result.message || "Could not load location details.",
-            });
-            setSelectedLocationInfo(null);
-          }
-        })
-        .catch((error) => {
-          addLog(`Fetch error: ${error.message}`);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to fetch location details.",
-          });
-          setSelectedLocationInfo(null);
-        })
-        .finally(() => {
-          setIsLocationInfoLoading(false);
-        });
-    } else {
+    if (!selectedMuni || selectedMuni === ALL_MUNICIPALITIES) {
       setSelectedLocationInfo(null);
+      return;
     }
+
+    const fetchLocationInfo = async () => {
+      setIsLocationInfoLoading(true);
+      setSelectedLocationInfo(null);
+      addLog(`Fetching details for id_dane: ${selectedMuni}`);
+
+      try {
+        const response = await fetch(`/api/location-info?id=${selectedMuni}`);
+        const result = await response.json();
+        
+        addLog(`API Response: ${JSON.stringify(result, null, 2)}`);
+
+        if (response.ok) {
+          setSelectedLocationInfo(result);
+        } else {
+          throw new Error(result.error || `HTTP error! status: ${response.status}`);
+        }
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message || "Failed to fetch location details.",
+        });
+        setSelectedLocationInfo(null);
+      } finally {
+        setIsLocationInfoLoading(false);
+      }
+    };
+    
+    fetchLocationInfo();
   }, [selectedMuni, toast]);
 
   const filteredLocations = React.useMemo(() => {
