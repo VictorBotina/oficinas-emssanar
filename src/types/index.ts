@@ -3,6 +3,7 @@ export type Location = {
   nombre: string;
   latitud: number;
   longitud: number;
+  departamento?: string;
 };
 
 export type LocationInfo = {

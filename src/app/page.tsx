@@ -22,12 +22,21 @@ const GeoMap = dynamic(() => import("@/components/GeoMap"), {
 const ALL_DEPARTMENTS = "__ALL_DEPARTMENTS__";
 const ALL_MUNICIPALITIES = "__ALL_MUNICIPALITIES__";
 const DEFAULT_CENTER: [number, number] = [4.7110, -74.0721];
-const DEFAULT_ZOOM = 6;
+const DEFAULT_ZOOM = 5;
+
+type LocationData = {
+  [department: string]: {
+    nombre_municipio: string;
+    id_dane: string;
+    latitud: number;
+    longitud: number;
+  }[];
+};
 
 export default function Home() {
   const { toast } = useToast();
-  const [allLocations, setAllLocations] = React.useState<Location[]>([]);
-  const [departments, setDepartments] = React.useState<Location[]>([]);
+  const [locationData, setLocationData] = React.useState<LocationData>({});
+  const [departments, setDepartments] = React.useState<string[]>([]);
   const [municipalities, setMunicipalities] = React.useState<Location[]>([]);
   
   const [selectedDept, setSelectedDept] = React.useState<string>(ALL_DEPARTMENTS);
@@ -48,40 +57,33 @@ export default function Home() {
         }
         return res.json();
       })
-      .then(data => {
-        if (!Array.isArray(data) || data.some(item => !item.id_dane || !item.nombre || item.latitud === undefined || item.longitud === undefined)) {
-          toast({
-            variant: "destructive",
-            title: "Invalid File",
-            description: "The JSON file is not in the correct format.",
-          });
-          return;
-        }
-        setAllLocations(data);
-        const depts = data.filter(loc => String(loc.id_dane).length === 2 || String(loc.id_dane).length === 1).sort((a, b) => a.nombre.localeCompare(b.nombre));
-        setDepartments(depts);
+      .then((data: LocationData) => {
+        setLocationData(data);
+        const deptNames = Object.keys(data).sort((a, b) => a.localeCompare(b));
+        setDepartments(deptNames);
       })
       .catch((error) => {
         toast({
           variant: "destructive",
           title: "Failed to load data",
-          description: "Could not load default location data.",
+          description: "Could not load location data.",
         });
       });
   }, [toast]);
   
   React.useEffect(() => {
     if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
-      const munis = allLocations
-        .filter(loc => String(loc.id_dane).length === 5 && String(loc.id_dane).startsWith(selectedDept))
-        .sort((a, b) => a.nombre.localeCompare(b.nombre));
-      setMunicipalities(munis);
+      const munis = locationData[selectedDept]?.map(m => ({
+        ...m,
+        nombre: m.nombre_municipio
+      })) || [];
+      setMunicipalities(munis.sort((a, b) => a.nombre.localeCompare(b.nombre)));
     } else {
       setMunicipalities([]);
     }
     setSelectedMuni(ALL_MUNICIPALITIES);
     setSelectedLocationInfo(null);
-  }, [selectedDept, allLocations]);
+  }, [selectedDept, locationData]);
 
   React.useEffect(() => {
     if (!selectedMuni || selectedMuni === ALL_MUNICIPALITIES) {
@@ -92,7 +94,7 @@ export default function Home() {
     const fetchLocationInfo = async () => {
       setIsLocationInfoLoading(true);
       setSelectedLocationInfo(null);
-      addLog(`Fetching details for id_dane: ${selectedMuni}`);
+      addLog(`POST to Supabase with id_dane: ${selectedMuni}`);
 
       try {
         const response = await fetch(`/api/location-info?id=${selectedMuni}`);
@@ -100,7 +102,7 @@ export default function Home() {
         
         addLog(`API Response: ${JSON.stringify(result, null, 2)}`);
 
-        if (response.ok) {
+        if (response.ok && !result.error) {
           setSelectedLocationInfo(result);
         } else {
           throw new Error(result.error || `HTTP error! status: ${response.status}`);
@@ -120,33 +122,45 @@ export default function Home() {
     fetchLocationInfo();
   }, [selectedMuni, toast]);
 
+  const allLocations = React.useMemo(() => {
+    return Object.entries(locationData).flatMap(([dept, munis]) => 
+      munis.map(muni => ({
+        ...muni,
+        nombre: muni.nombre_municipio,
+        departamento: dept
+      }))
+    );
+  }, [locationData]);
+
   const filteredLocations = React.useMemo(() => {
     if (selectedMuni !== ALL_MUNICIPALITIES) {
       return allLocations.filter(loc => loc.id_dane === selectedMuni);
     }
     if (selectedDept !== ALL_DEPARTMENTS) {
-      return allLocations.filter(loc => String(loc.id_dane).length === 5 && String(loc.id_dane).startsWith(selectedDept));
+      return allLocations.filter(loc => loc.departamento === selectedDept);
     }
-    return allLocations.filter(loc => String(loc.id_dane).length === 5);
+    return allLocations;
   }, [selectedDept, selectedMuni, allLocations]);
   
   const activeLocation = React.useMemo(() => {
     if (selectedMuni !== ALL_MUNICIPALITIES) {
       return allLocations.find(m => m.id_dane === selectedMuni);
     }
-    if (selectedDept !== ALL_DEPARTMENTS) {
-      return departments.find(d => d.id_dane === selectedDept);
-    }
     return undefined;
-  }, [selectedDept, selectedMuni, departments, allLocations]);
+  }, [selectedMuni, allLocations]);
 
   const { center, zoom } = React.useMemo(() => {
     if (activeLocation) {
-      const zoomLevel = selectedMuni !== ALL_MUNICIPALITIES ? 12 : 8;
-      return { center: [activeLocation.latitud, activeLocation.longitud] as [number, number], zoom: zoomLevel };
+      return { center: [activeLocation.latitud, activeLocation.longitud] as [number, number], zoom: 12 };
+    }
+    if (selectedDept !== ALL_DEPARTMENTS && filteredLocations.length > 0) {
+      // Average the coordinates of the department's municipalities to center the map
+      const avgLat = filteredLocations.reduce((acc, loc) => acc + loc.latitud, 0) / filteredLocations.length;
+      const avgLng = filteredLocations.reduce((acc, loc) => acc + loc.longitud, 0) / filteredLocations.length;
+      return { center: [avgLat, avgLng] as [number, number], zoom: 8 };
     }
     return { center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM };
-  }, [activeLocation, selectedMuni]);
+  }, [activeLocation, selectedDept, filteredLocations]);
   
   const handleDeptChange = (value: string) => {
     setSelectedDept(value);
@@ -181,7 +195,7 @@ export default function Home() {
                   <SelectContent>
                     <SelectItem value={ALL_DEPARTMENTS}>All Departments</SelectItem>
                     {departments.map(dept => (
-                      <SelectItem key={dept.id_dane} value={String(dept.id_dane)}>{dept.nombre}</SelectItem>
+                      <SelectItem key={dept} value={dept} className="capitalize">{dept}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

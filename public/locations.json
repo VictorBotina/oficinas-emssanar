@@ -1,8 +1,58 @@
-[
- 
-  {"id_dane": "52", "nombre": "Nariño", "latitud": 1.2177, "longitud": -77.3868},
-  {"id_dane": "52001", "nombre": "Pasto", "latitud": 1.21389, "longitud": -77.28056}
- 
-
-
-]
+{
+  "nariño": [
+    {
+      "nombre_municipio": "Pasto",
+      "id_dane": "52001",
+      "latitud": 1.21389,
+      "longitud": -77.28056
+    },
+    {
+      "nombre_municipio": "Ipiales",
+      "id_dane": "52364",
+      "latitud": 0.828611,
+      "longitud": -77.643056
+    }
+  ],
+  "putumayo": [
+    {
+      "nombre_municipio": "Mocoa",
+      "id_dane": "86001",
+      "latitud": 1.14889,
+      "longitud": -76.64528
+    },
+    {
+      "nombre_municipio": "Puerto Asís",
+      "id_dane": "86569",
+      "latitud": 0.50528,
+      "longitud": -76.50333
+    }
+  ],
+  "cauca": [
+    {
+      "nombre_municipio": "Popayán",
+      "id_dane": "19001",
+      "latitud": 2.44194,
+      "longitud": -76.61306
+    },
+    {
+      "nombre_municipio": "Santander de Quilichao",
+      "id_dane": "19698",
+      "latitud": 3.04889,
+      "longitud": -76.47417
+    }
+  ],
+  "valle del cauca": [
+    {
+      "nombre_municipio": "Cali",
+      "id_dane": "76001",
+      "latitud": 3.45167,
+      "longitud": -76.5325
+    },
+    {
+      "nombre_municipio": "Palmira",
+      "id_dane": "76520",
+      "latitud": 3.53722,
+      "longitud": -76.29472
+    }
+  ]
+}
