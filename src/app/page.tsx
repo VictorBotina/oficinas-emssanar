@@ -106,7 +106,7 @@ export default function Home() {
 
   const { center, zoom } = React.useMemo(() => {
     if (activeLocation) {
-      return { center: [activeLocation.latitud, activeLocation.longitud] as [number, number], zoom: 12 };
+      return { center: [activeLocation.latitud, activeLocation.longitud] as [number, number], zoom: 15 };
     }
     if (selectedDept !== ALL_DEPARTMENTS && filteredLocations.length > 0) {
       const avgLat = filteredLocations.reduce((acc, loc) => acc + loc.latitud, 0) / filteredLocations.length;
