@@ -4,3 +4,12 @@ export type Location = {
   latitud: number;
   longitud: number;
 };
+
+export type LocationInfo = {
+  municipio: string;
+  departamento: string;
+  direccion: string;
+  horario_atencion: string;
+  servicios_sub: string;
+  servicios_cont: string;
+};

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import L, { Map as LeafletMap } from 'leaflet';
-import type { Location } from '@/types';
+import type { Location, LocationInfo } from '@/types';
 
 const markerHtml = (color: string) => `
   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">
@@ -19,7 +19,6 @@ const defaultIcon = new L.DivIcon({
   popupAnchor: [0, -32]
 });
 
-// Fix for default marker icon in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -27,12 +26,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-
 interface GeoMapProps {
   locations: Location[];
   center: [number, number];
   zoom: number;
 }
+
+const createPopupContent = (info: LocationInfo) => `
+  <div class="font-bold text-base mb-2">${info.municipio}, ${info.departamento}</div>
+  <div class="text-sm">
+    <p><strong>Address:</strong> ${info.direccion}</p>
+    <p><strong>Hours:</strong> ${info.horario_atencion}</p>
+    <p><strong>Subscription Services:</strong> ${info.servicios_sub}</p>
+    <p><strong>Services:</strong> ${info.servicios_cont}</p>
+  </div>
+`;
 
 const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -54,14 +62,7 @@ const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
       mapInstanceRef.current = map;
       markersRef.current.addTo(map);
     }
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, []); // Empty dependency array ensures this runs only once on mount and unmount
+  }, []);
 
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -79,11 +80,44 @@ const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
       markers.clearLayers();
       locations.forEach(loc => {
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
-        marker.bindPopup(`<div class="font-bold">${loc.nombre}</div>`);
+        
+        marker.on('click', () => {
+          const popup = L.popup({ minWidth: 250 });
+          popup
+            .setLatLng([loc.latitud, loc.longitud])
+            .setContent(`<div class="font-bold">${loc.nombre}</div><p>Loading details...</p>`)
+            .openOn(mapInstanceRef.current!);
+
+          fetch(`/api/location-info?id=${loc.id_dane}`)
+            .then(res => res.json())
+            .then(result => {
+              if (result.success) {
+                popup.setContent(createPopupContent(result.data));
+              } else {
+                popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Could not load details.</p>`);
+              }
+            })
+            .catch(() => {
+              popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Error fetching details.</p>`);
+            });
+        });
+
         markers.addLayer(marker);
       });
     }
   }, [locations]);
+
+  useEffect(() => {
+    const cleanup = () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+    
+    // Cleanup on component unmount
+    return cleanup;
+  }, []);
 
   return <div ref={mapContainerRef} className="h-full w-full" />;
 };
