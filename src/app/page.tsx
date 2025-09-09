@@ -19,14 +19,17 @@ const GeoMap = dynamic(() => import("@/components/GeoMap"), {
   loading: () => <Skeleton className="h-full w-full" />,
 });
 
+const ALL_DEPARTMENTS = "__ALL_DEPARTMENTS__";
+const ALL_MUNICIPALITIES = "__ALL_MUNICIPALITIES__";
+
 export default function Home() {
   const { toast } = useToast();
   const [allLocations, setAllLocations] = React.useState<Location[]>([]);
   const [departments, setDepartments] = React.useState<Location[]>([]);
   const [municipalities, setMunicipalities] = React.useState<Location[]>([]);
   
-  const [selectedDept, setSelectedDept] = React.useState<string>("");
-  const [selectedMuni, setSelectedMuni] = React.useState<string>("");
+  const [selectedDept, setSelectedDept] = React.useState<string>(ALL_DEPARTMENTS);
+  const [selectedMuni, setSelectedMuni] = React.useState<string>(ALL_MUNICIPALITIES);
 
   const processLocations = React.useCallback((data: Location[]) => {
     if (!Array.isArray(data) || data.some(item => !item.id_dane || !item.nombre || item.latitud === undefined || item.longitud === undefined)) {
@@ -40,8 +43,8 @@ export default function Home() {
     setAllLocations(data);
     const depts = data.filter(loc => String(loc.id_dane).length === 2 || String(loc.id_dane).length === 1).sort((a, b) => a.nombre.localeCompare(b.nombre));
     setDepartments(depts);
-    setSelectedDept("");
-    setSelectedMuni("");
+    setSelectedDept(ALL_DEPARTMENTS);
+    setSelectedMuni(ALL_MUNICIPALITIES);
   }, [toast]);
 
   React.useEffect(() => {
@@ -87,7 +90,7 @@ export default function Home() {
   };
   
   React.useEffect(() => {
-    if (selectedDept) {
+    if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
       const munis = allLocations
         .filter(loc => String(loc.id_dane).length === 5 && String(loc.id_dane).startsWith(selectedDept))
         .sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -95,24 +98,32 @@ export default function Home() {
     } else {
       setMunicipalities([]);
     }
-    setSelectedMuni("");
+    setSelectedMuni(ALL_MUNICIPALITIES);
   }, [selectedDept, allLocations]);
 
   const filteredLocations = React.useMemo(() => {
-    if (selectedMuni) {
+    if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) {
       return allLocations.filter(loc => loc.id_dane === selectedMuni);
     }
-    if (selectedDept) {
+    if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
       return allLocations.filter(loc => String(loc.id_dane).length === 5 && String(loc.id_dane).startsWith(selectedDept));
     }
     return allLocations.filter(loc => String(loc.id_dane).length === 5);
   }, [selectedDept, selectedMuni, allLocations]);
   
   const activeLocation = React.useMemo(() => {
-      if (selectedMuni) return allLocations.find(m => m.id_dane === selectedMuni);
-      if (selectedDept) return departments.find(d => d.id_dane === selectedDept);
+      if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) return allLocations.find(m => m.id_dane === selectedMuni);
+      if (selectedDept && selectedDept !== ALL_DEPARTMENTS) return departments.find(d => d.id_dane === selectedDept);
       return null;
   }, [selectedDept, selectedMuni, departments, allLocations]);
+  
+  const handleDeptChange = (value: string) => {
+    setSelectedDept(value);
+  }
+
+  const handleMuniChange = (value: string) => {
+    setSelectedMuni(value);
+  }
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
@@ -142,12 +153,12 @@ export default function Home() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="department-select">Department</Label>
-                <Select value={selectedDept} onValueChange={setSelectedDept}>
+                <Select value={selectedDept} onValueChange={handleDeptChange}>
                   <SelectTrigger id="department-select">
                     <SelectValue placeholder="Select a department" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Departments</SelectItem>
+                    <SelectItem value={ALL_DEPARTMENTS}>All Departments</SelectItem>
                     {departments.map(dept => (
                       <SelectItem key={dept.id_dane} value={String(dept.id_dane)}>{dept.nombre}</SelectItem>
                     ))}
@@ -156,12 +167,12 @@ export default function Home() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="municipality-select">Municipality</Label>
-                <Select value={selectedMuni} onValueChange={setSelectedMuni} disabled={!selectedDept}>
+                <Select value={selectedMuni} onValueChange={handleMuniChange} disabled={selectedDept === ALL_DEPARTMENTS}>
                   <SelectTrigger id="municipality-select">
                     <SelectValue placeholder="Select a municipality" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Municipalities</SelectItem>
+                    <SelectItem value={ALL_MUNICIPALITIES}>All Municipalities</SelectItem>
                     {municipalities.map(muni => (
                       <SelectItem key={muni.id_dane} value={muni.id_dane}>{muni.nombre}</SelectItem>
                     ))}
