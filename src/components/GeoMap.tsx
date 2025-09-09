@@ -29,49 +29,64 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+const createServiceList = (services: string) => {
+  if (!services) return '<p class="text-sm text-muted-foreground">No disponibles</p>';
+
+  const serviceItems = services.split(/\r\n|\n/)
+    .map(s => s.trim())
+    .filter(s => s)
+    .map(service => `
+      <li class="flex items-start gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-accent mt-1 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span>${service}</span>
+      </li>
+    `).join('');
+
+  return `<ul class="space-y-2 text-sm text-foreground">${serviceItems}</ul>`;
+}
 
 const PopupContent = ({ data }: { data: LocationInfo }) => `
   <div class="p-0.5 max-w-sm font-sans overflow-hidden rounded-xl shadow-lg" style="font-family: 'PT Sans', sans-serif;">
     <div class="bg-card text-card-foreground">
-      <div class="p-4 flex items-center gap-4 border-b border-gray-100">
+      <div class="p-4 flex items-center gap-4 border-b">
         <img src="https://emssanareps.co/images/logo_emssanareps.svg" alt="Logo Emssanar" class="h-10 w-auto" />
-        <h3 class="text-lg font-bold text-gray-800">
-          ${data.municipio}<span class="text-gray-500 font-normal">, ${data.departamento}</span>
+        <h3 class="text-lg font-bold text-foreground">
+          ${data.municipio}<span class="text-muted-foreground font-normal text-base">, ${data.departamento}</span>
         </h3>
       </div>
-      <div class="p-4 space-y-4 text-base">
+      <div class="p-4 space-y-3 text-base">
         <div class="flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           <div class="flex-1">
-            <p class="font-semibold text-gray-700">Dirección</p>
-            <p class="text-gray-600">${data.direccion || 'No especificada'}</p>
+            <p class="font-semibold text-foreground">Dirección</p>
+            <p class="text-muted-foreground">${data.direccion || 'No especificada'}</p>
           </div>
         </div>
         <div class="flex items-start gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-muted-foreground flex-shrink-0 mt-1"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           <div class="flex-1">
-            <p class="font-semibold text-gray-700">Horario</p>
-            <p class="text-gray-600">${data.horario_atencion || 'No especificado'}</p>
+            <p class="font-semibold text-foreground">Horario</p>
+            <p class="text-muted-foreground">${data.horario_atencion || 'No especificado'}</p>
           </div>
         </div>
         
-        <div class="space-y-2">
+        <div class="space-y-2 pt-2">
             <details class="group">
-              <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-gray-700 hover:text-gray-900">
+              <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-foreground hover:text-accent">
                 Servicios Subsidiados
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform duration-200 group-open:rotate-180"><path d="m6 9 6 6 6-6"></path></svg>
               </summary>
-              <p class="mt-2 text-gray-600">${data.servicios_sub || 'No disponibles'}</p>
+              <div class="mt-2 text-foreground/80">${createServiceList(data.servicios_sub)}</div>
             </details>
             
-            <div class="border-t border-gray-200"></div>
+            <div class="border-t"></div>
 
             <details class="group">
-              <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-gray-700 hover:text-gray-900 pt-2">
+              <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-foreground hover:text-accent pt-2">
                 Servicios Contributivos
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform duration-200 group-open:rotate-180"><path d="m6 9 6 6 6-6"></path></svg>
               </summary>
-              <p class="mt-2 text-gray-600">${data.servicios_cont || 'No disponibles'}</p>
+              <div class="mt-2 text-foreground/80">${createServiceList(data.servicios_cont)}</div>
             </details>
         </div>
       </div>

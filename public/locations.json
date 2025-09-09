@@ -1,16 +1,16 @@
 {
-  "nariño": [
+  "Nariño": [
     {
       "nombre_municipio": "Pasto",
       "id_dane": "52001",
-      "latitud": 1.21389,
-      "longitud": -77.28056
+      "latitud": 1.2270331033514967,
+      "longitud": -77.28599173667307
     },
     {
       "nombre_municipio": "Ipiales",
       "id_dane": "52364",
-      "latitud": 0.828611,
-      "longitud": -77.643056
+      "latitud": 0.8269842833029873,
+      "longitud": -77.63941242011808
     }
   ],
   "putumayo": [
