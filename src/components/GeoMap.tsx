@@ -107,6 +107,7 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }
             fetch(`/api/location-info?id=${loc.id_dane}`)
               .then(res => {
                 onMarkerClick?.(`API response status for ${loc.id_dane}: ${res.status}`);
+                onMarkerClick?.(`API response content-type for ${loc.id_dane}: ${res.headers.get('Content-Type')}`);
                 return res.json()
               })
               .then(result => {

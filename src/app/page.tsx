@@ -95,6 +95,7 @@ export default function Home() {
       fetch(`/api/location-info?id=${selectedMuni}`)
         .then(res => {
           addLog(`API response status: ${res.status}`);
+          addLog(`API response content-type: ${res.headers.get('Content-Type')}`);
           if (!res.ok) {
             throw new Error(`API returned status ${res.status}`);
           }
