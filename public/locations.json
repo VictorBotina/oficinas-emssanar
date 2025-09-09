@@ -1,8 +1,8 @@
 [
-  {"id_dane": "05", "nombre": "Antioquia", "latitud": 6.9443, "longitud": -75.1091},
-  {"id_dane": "05001", "nombre": "Medellín", "latitud": 6.2442, "longitud": -75.5812},
-  {"id_dane": "05088", "nombre": "Bello", "latitud": 6.3323, "longitud": -75.5582},
-  {"id_dane": "05360", "nombre": "Itagüí", "latitud": 6.1762, "longitud": -75.6094},
+ 
+  {"id_dane": "52", "nombre": "Nariño", "latitud": 1.2177, "longitud": -77.3868},
+  {"id_dane": "52001", "nombre": "Pasto", "latitud": 1.21389, "longitud": -77.28056},
+ 
   
   {"id_dane": "76", "nombre": "Valle del Cauca", "latitud": 3.9167, "longitud": -76.5333},
   {"id_dane": "76001", "nombre": "Cali", "latitud": 3.4516, "longitud": -76.5320},
