@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { Location } from '@/types';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 const markerHtml = (color: string) => `
   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">
@@ -45,7 +45,7 @@ interface GeoMapProps {
   activeLocation: Location | null;
 }
 
-export default function GeoMap({ locations, activeLocation }: GeoMapProps) {
+const MemoizedGeoMap = React.memo(function GeoMap({ locations, activeLocation }: GeoMapProps) {
   const defaultCenter: [number, number] = [4.7110, -74.0721];
   const defaultZoom = 6;
   
@@ -77,4 +77,8 @@ export default function GeoMap({ locations, activeLocation }: GeoMapProps) {
       ))}
     </MapContainer>
   );
-}
+});
+
+MemoizedGeoMap.displayName = 'GeoMap';
+
+export default MemoizedGeoMap;
