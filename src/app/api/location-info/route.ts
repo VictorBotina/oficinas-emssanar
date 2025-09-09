@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         'apikey': supabaseApiKey,
         'Authorization': `Bearer ${supabaseApiKey}`
       },
-      body: JSON.stringify({ p_id_dane: id })
+      body: JSON.stringify({ id_dane: id })
     });
 
     if (!response.ok) {
