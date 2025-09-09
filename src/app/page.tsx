@@ -2,11 +2,9 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { Upload, Map as MapIcon } from "lucide-react";
+import { Map as MapIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,33 +59,6 @@ export default function Home() {
         });
       });
   }, [processLocations, toast]);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const content = e.target?.result;
-          if (typeof content === 'string') {
-            const jsonData = JSON.parse(content);
-            processLocations(jsonData);
-            toast({
-              title: "Success",
-              description: "Location data loaded from file.",
-            });
-          }
-        } catch (error) {
-          toast({
-            variant: "destructive",
-            title: "Error reading file",
-            description: "Could not parse the JSON file. Please check its format.",
-          });
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
   
   React.useEffect(() => {
     if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
@@ -131,16 +102,6 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <MapIcon className="h-8 w-8 text-accent" />
           <h1 className="text-2xl font-bold font-headline text-gray-800">GeoExplorer</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="json-upload" className="cursor-pointer">
-            <Button asChild variant="outline">
-              <div>
-                <Upload className="mr-2 h-4 w-4" /> Upload JSON
-              </div>
-            </Button>
-          </Label>
-          <Input id="json-upload" type="file" accept=".json" className="hidden" onChange={handleFileChange} />
         </div>
       </header>
       <main className="flex-1 grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-4 p-4 overflow-hidden">
