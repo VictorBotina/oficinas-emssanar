@@ -10,6 +10,12 @@ interface SupabaseLocationData {
   servicios_cont: string;
 }
 
+interface SupabaseApiResponse {
+  success: boolean;
+  data?: SupabaseLocationData;
+  message?: string;
+}
+
 interface FormattedLocationData {
   municipio: string;
   departamento: string;
@@ -91,7 +97,7 @@ export async function GET(request: Request) {
         );
     }
     
-    const data = await response.json();
+    const data: SupabaseApiResponse = await response.json();
     
     console.log('Supabase API raw response:', JSON.stringify(data));
 
@@ -101,7 +107,15 @@ export async function GET(request: Request) {
         return NextResponse.json({ success: false, message }, { status: 404 });
     }
     
-    const locationData: SupabaseLocationData = data.data;
+    const locationData = data.data;
+
+    if (!locationData) {
+        console.error('Data object is missing in successful Supabase response', { receivedData: data });
+        return NextResponse.json(
+            { success: false, message: 'Incomplete data received from server' },
+            { status: 502 }
+        );
+    }
 
     const requiredFields = ['municipio', 'departamento', 'direccion'];
     const missingFields = requiredFields.filter(field => !locationData[field as keyof SupabaseLocationData]);
