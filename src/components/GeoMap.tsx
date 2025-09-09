@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import L, { Map as LeafletMap } from 'leaflet';
 import type { Location } from '@/types';
 
@@ -19,47 +19,13 @@ const defaultIcon = new L.DivIcon({
   popupAnchor: [0, -32]
 });
 
+// Fix for default marker icon in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
-
-
-interface MapUpdaterProps {
-  map: LeafletMap;
-  locations: Location[];
-  center: [number, number];
-  zoom: number;
-}
-
-function MapUpdater({ map, locations, center, zoom }: MapUpdaterProps) {
-  const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
-
-  useEffect(() => {
-    if (map) {
-      map.flyTo(center, zoom, {
-        animate: true,
-        duration: 1.5,
-      });
-    }
-  }, [center, zoom, map]);
-
-  useEffect(() => {
-    if (map) {
-      markersRef.current.clearLayers();
-      locations.forEach(loc => {
-        const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
-        marker.bindPopup(`<div class="font-bold">${loc.nombre}</div>`);
-        markersRef.current.addLayer(marker);
-      });
-      markersRef.current.addTo(map);
-    }
-  }, [locations, map]);
-
-  return null;
-}
 
 
 interface GeoMapProps {
@@ -70,11 +36,12 @@ interface GeoMapProps {
 
 const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<LeafletMap | null>(null);
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
+  const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
 
   useEffect(() => {
-    if (mapContainerRef.current && !map) {
-      const leafletMap = L.map(mapContainerRef.current, {
+    if (mapContainerRef.current && !mapInstanceRef.current) {
+      const map = L.map(mapContainerRef.current, {
         center: center,
         zoom: zoom,
         scrollWheelZoom: true,
@@ -82,26 +49,43 @@ const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(leafletMap);
-      
-      setMap(leafletMap);
-    }
-  }, [mapContainerRef, map, center, zoom]);
+      }).addTo(map);
 
-  useEffect(() => {
+      mapInstanceRef.current = map;
+      markersRef.current.addTo(map);
+    }
+
     return () => {
-      if (map) {
-        map.remove();
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
       }
     };
-  }, [map]);
-  
+  }, []); // Empty dependency array ensures this runs only once on mount and unmount
 
-  return (
-    <div ref={mapContainerRef} className="h-full w-full">
-      {map && <MapUpdater map={map} locations={locations} center={center} zoom={zoom} />}
-    </div>
-  );
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (map) {
+      map.flyTo(center, zoom, {
+        animate: true,
+        duration: 1.5,
+      });
+    }
+  }, [center, zoom]);
+
+  useEffect(() => {
+    const markers = markersRef.current;
+    if (markers) {
+      markers.clearLayers();
+      locations.forEach(loc => {
+        const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
+        marker.bindPopup(`<div class="font-bold">${loc.nombre}</div>`);
+        markers.addLayer(marker);
+      });
+    }
+  }, [locations]);
+
+  return <div ref={mapContainerRef} className="h-full w-full" />;
 };
 
 export default GeoMap;

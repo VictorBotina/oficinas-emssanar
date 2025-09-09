@@ -87,13 +87,10 @@ export default function Home() {
       const dept = departments.find(d => d.id_dane === selectedDept);
       if (dept) return { center: [dept.latitud, dept.longitud] as [number, number], zoom: 8 };
     }
-    if (filteredLocations.length > 0) {
-      const totalLat = filteredLocations.reduce((acc, loc) => acc + loc.latitud, 0);
-      const totalLng = filteredLocations.reduce((acc, loc) => acc + loc.longitud, 0);
-      return { center: [totalLat / filteredLocations.length, totalLng / filteredLocations.length] as [number, number], zoom: 7 };
-    }
+    // This fallback logic for center and zoom is not ideal as it calculates the average.
+    // However, without a clear single point for multiple locations, it's a reasonable default.
     return { center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM };
-  }, [selectedDept, selectedMuni, departments, allLocations, filteredLocations]);
+  }, [selectedDept, selectedMuni, departments, allLocations]);
   
   const handleDeptChange = (value: string) => {
     setSelectedDept(value);
