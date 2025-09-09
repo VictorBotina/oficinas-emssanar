@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { MapIcon, AlertCircle, Search as SearchIcon, CheckCircle2 } from "lucide-react";
+import { MapIcon, AlertCircle, Search as SearchIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { executeSupabaseQuery } from "@/lib/supabase-utils";
 
-import type { Location } from "@/types";
+import type { Location, LocationInfo } from "@/types";
 
 const GeoMap = dynamic(() => import("@/components/GeoMap"), {
   ssr: false,
@@ -41,28 +41,18 @@ const DataField = ({ label, value }: { label: string, value: string | number }) 
   </div>
 );
 
-const StructuredResponse = ({ data }: { data: any }) => {
-  if (!data || !data.data) {
-    return (
-       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>No se encontraron datos</AlertTitle>
-        <AlertDescription>La consulta fue exitosa pero no se encontró información para este municipio.</AlertDescription>
-      </Alert>
-    )
-  }
-  const info = data.data;
+const StructuredResponse = ({ data }: { data: LocationInfo }) => {
   return (
     <Card>
       <CardHeader className="border-b">
         <CardTitle>Información Detallada</CardTitle>
-        <CardDescription>{info.municipio}, {info.departamento}</CardDescription>
+        <CardDescription>{data.municipio}, {data.departamento}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 grid gap-4">
-        <DataField label="Dirección" value={info.direccion} />
-        <DataField label="Horario de Atención" value={info.horario_atencion} />
-         {info.servicios_sub && <DataField label="Servicios Sub" value={info.servicios_sub} />}
-        {info.servicios_cont && <DataField label="Servicios Cont" value={info.servicios_cont} />}
+        <DataField label="Dirección" value={data.direccion} />
+        <DataField label="Horario de Atención" value={data.horario_atencion} />
+         {data.servicios_sub && <DataField label="Servicios Sub" value={data.servicios_sub} />}
+        {data.servicios_cont && <DataField label="Servicios Cont" value={data.servicios_cont} />}
       </CardContent>
     </Card>
   );
@@ -108,7 +98,17 @@ const ApiResponseDisplay = ({ error, response, isLoading }: { error: string | nu
     );
   }
 
-  return <StructuredResponse data={response} />;
+  if (response.success === false) {
+     return (
+       <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>No se encontraron datos</AlertTitle>
+        <AlertDescription>{response.message || 'La consulta fue exitosa pero no se encontró información para este municipio.'}</AlertDescription>
+      </Alert>
+    )
+  }
+
+  return <StructuredResponse data={response.data} />;
 };
 
 
@@ -131,7 +131,7 @@ export default function Home() {
 
   React.useEffect(() => {
     if (!supabaseUrl || !supabaseApiKey) {
-      setError("Las variables de entorno de Supabase no están configuradas.");
+      setError("Error: Las variables de entorno de Supabase (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_API_KEY) no están configuradas en el archivo .env. Asegúrate de que el archivo existe y reinicia el servidor.");
     }
 
     fetch('/locations.json')
@@ -151,7 +151,7 @@ export default function Home() {
   
   const handleExecuteRequest = React.useCallback(async (id_dane: string) => {
     if (!supabaseUrl || !supabaseApiKey) {
-      setError("Las variables de entorno de Supabase no están configuradas.");
+      setError("Error: Las variables de entorno de Supabase no están configuradas.");
       return;
     }
     
@@ -168,7 +168,9 @@ export default function Home() {
           body: JSON.stringify({ id_dane: id_dane }),
         }
       );
-      setResponse(data);
+      
+      const result = Array.isArray(data) ? data[0] : data;
+      setResponse(result);
 
     } catch (e: any) {
       setError(e.message || "Ocurrió un error al consultar la información.");
