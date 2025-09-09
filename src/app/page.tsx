@@ -2,16 +2,15 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { MapIcon, AlertCircle, Search as SearchIcon } from "lucide-react";
+import { MapIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { executeSupabaseQuery } from "@/lib/supabase-utils";
 
-import type { Location, LocationInfo } from "@/types";
+import type { Location } from "@/types";
 
 const GeoMap = dynamic(() => import("@/components/GeoMap"), {
   ssr: false,
@@ -32,88 +31,6 @@ type LocationData = {
   }[];
 };
 
-// --- Sub-componentes para mostrar datos ---
-
-const DataField = ({ label, value }: { label: string, value: string | number }) => (
-  <div>
-    <p className="text-sm text-muted-foreground">{label}</p>
-    <p className="font-medium">{value || 'No especificado'}</p>
-  </div>
-);
-
-const StructuredResponse = ({ data }: { data: LocationInfo }) => {
-  return (
-    <Card>
-      <CardHeader className="border-b">
-        <CardTitle>Información Detallada</CardTitle>
-        <CardDescription>{data.municipio}, {data.departamento}</CardDescription>
-      </CardHeader>
-      <CardContent className="p-4 grid gap-4">
-        <DataField label="Dirección" value={data.direccion} />
-        <DataField label="Horario de Atención" value={data.horario_atencion} />
-         {data.servicios_sub && <DataField label="Servicios Sub" value={data.servicios_sub} />}
-        {data.servicios_cont && <DataField label="Servicios Cont" value={data.servicios_cont} />}
-      </CardContent>
-    </Card>
-  );
-};
-
-const ApiResponseDisplay = ({ error, response, isLoading }: { error: string | null, response: any, isLoading: boolean }) => {
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-6 w-2/3" />
-        </CardHeader>
-        <CardContent className="space-y-3 pt-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-4/6" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (!response) {
-    return (
-       <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12 gap-2">
-          <SearchIcon className="h-8 w-8 text-muted-foreground" />
-          <p className="text-muted-foreground text-center">
-            Selecciona un municipio para ver la información detallada.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (response.success === false) {
-     return (
-       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>No se encontraron datos</AlertTitle>
-        <AlertDescription>{response.message || 'La consulta fue exitosa pero no se encontró información para este municipio.'}</AlertDescription>
-      </Alert>
-    )
-  }
-
-  return <StructuredResponse data={response.data} />;
-};
-
-
-// --- Componente Principal ---
-
 export default function Home() {
   const [locationData, setLocationData] = React.useState<LocationData>({});
   const [departments, setDepartments] = React.useState<string[]>([]);
@@ -121,10 +38,7 @@ export default function Home() {
   
   const [selectedDept, setSelectedDept] = React.useState<string>(ALL_DEPARTMENTS);
   const [selectedMuni, setSelectedMuni] = React.useState<string>(ALL_MUNICIPALITIES);
-
-  const [response, setResponse] = React.useState<any>(null);
   const [error, setError] = React.useState<string | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseApiKey = process.env.NEXT_PUBLIC_SUPABASE_API_KEY;
@@ -148,37 +62,6 @@ export default function Home() {
         setError("No se pudo cargar el archivo de ubicaciones (locations.json).");
       });
   }, [supabaseUrl, supabaseApiKey]);
-  
-  const handleExecuteRequest = React.useCallback(async (id_dane: string) => {
-    if (!supabaseUrl || !supabaseApiKey) {
-      setError("Error: Las variables de entorno de Supabase no están configuradas.");
-      return;
-    }
-    
-    setError(null);
-    setResponse(null);
-    setIsLoading(true);
-
-    try {
-      const data = await executeSupabaseQuery(
-        { supabaseUrl, supabaseKey: supabaseApiKey },
-        {
-          method: "POST",
-          path: "/rest/v1/rpc/of_emssanar",
-          body: JSON.stringify({ id_dane: id_dane }),
-        }
-      );
-      
-      const result = Array.isArray(data) ? data[0] : data;
-      setResponse(result);
-
-    } catch (e: any) {
-      setError(e.message || "Ocurrió un error al consultar la información.");
-      setResponse(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [supabaseUrl, supabaseApiKey]);
 
   React.useEffect(() => {
     if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
@@ -191,18 +74,7 @@ export default function Home() {
       setMunicipalities([]);
     }
     setSelectedMuni(ALL_MUNICIPALITIES);
-    setResponse(null);
-    setError(null);
   }, [selectedDept, locationData]);
-
-  React.useEffect(() => {
-    if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) {
-      handleExecuteRequest(selectedMuni);
-    } else {
-      setResponse(null);
-      setError(null);
-    }
-  }, [selectedMuni, handleExecuteRequest]);
 
   const allLocations = React.useMemo(() => {
     return Object.entries(locationData).flatMap(([dept, munis]) => 
@@ -262,6 +134,17 @@ export default function Home() {
     }
   }
 
+  if (error) {
+     return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Alert variant="destructive" className="max-w-lg">
+          <AlertTitle>Error de Configuración</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
       <header className="flex items-center justify-between p-4 border-b shrink-0 z-10 bg-background">
@@ -308,9 +191,6 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
-          
-          <ApiResponseDisplay error={error} response={response} isLoading={isLoading} />
-
         </div>
         <div className="lg:col-span-2 relative min-h-[400px] lg:min-h-0">
           <div className="absolute inset-0 z-0 rounded-lg overflow-hidden">

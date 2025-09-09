@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import L, { Map as LeafletMap } from 'leaflet';
-import type { Location } from '@/types';
+import L, { Map as LeafletMap, Marker } from 'leaflet';
+import type { Location, LocationInfo } from '@/types';
+import { executeSupabaseQuery } from "@/lib/supabase-utils";
 
 const markerHtml = (color: string) => `
   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">
@@ -26,6 +27,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+
+const PopupContent = ({ data }: { data: LocationInfo }) => `
+  <div style="font-family: 'PT Sans', sans-serif; font-size: 14px; line-height: 1.5;">
+    <h3 style="font-weight: 700; font-size: 16px; margin: 0 0 8px; color: hsl(var(--card-foreground));">${data.municipio}, ${data.departamento}</h3>
+    <p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Dirección:</strong> ${data.direccion || 'No especificada'}</p>
+    <p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Horario:</strong> ${data.horario_atencion || 'No especificado'}</p>
+    ${data.servicios_sub ? `<p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Servicios Sub:</strong> ${data.servicios_sub}</p>` : ''}
+    ${data.servicios_cont ? `<p style="margin: 0 0 4px;"><strong style="color: hsl(var(--muted-foreground));">Servicios Cont:</strong> ${data.servicios_cont}</p>` : ''}
+  </div>
+`;
+
 interface GeoMapProps {
   locations: Location[];
   center: [number, number];
@@ -37,6 +49,41 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick }: GeoMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_API_KEY;
+
+  const handleMarkerApiCall = async (id_dane: string, marker: Marker) => {
+    if (!supabaseUrl || !supabaseKey) {
+      marker.setPopupContent("Error: Faltan las credenciales de Supabase.").openPopup();
+      return;
+    }
+
+    marker.setPopupContent("Cargando información...").openPopup();
+
+    try {
+      const data = await executeSupabaseQuery(
+        { supabaseUrl, supabaseKey: supabaseKey },
+        {
+          method: "POST",
+          path: "/rest/v1/rpc/of_emssanar",
+          body: JSON.stringify({ id_dane: id_dane }),
+        }
+      );
+      
+      const result = Array.isArray(data) ? data[0] : data;
+
+      if (result && result.success && result.data) {
+        marker.setPopupContent(PopupContent({ data: result.data }));
+      } else {
+        const message = result?.message || 'No se encontró información para esta ubicación.';
+        marker.setPopupContent(message);
+      }
+    } catch (e: any) {
+      marker.setPopupContent(`Error al cargar: ${e.message || 'Error desconocido'}`);
+    }
+  };
+
 
   useEffect(() => {
     if (mapContainerRef.current && !mapInstanceRef.current) {
@@ -74,12 +121,16 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick }: GeoMapProps) => {
       locations.forEach(loc => {
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
         
+        // Initial simple popup
+        const initialPopupContent = `<b>${loc.nombre}</b><br>${loc.departamento}`;
+        marker.bindPopup(initialPopupContent);
+        
         marker.on('click', () => {
+          // Notify the parent page to update filters
           onMarkerClick(loc.id_dane);
+          // Handle the API call and update the popup
+          handleMarkerApiCall(loc.id_dane, marker);
         });
-
-        const popupContent = `<b>${loc.nombre}</b><br>${loc.departamento}`;
-        marker.bindPopup(popupContent);
 
         markers.addLayer(marker);
       });
