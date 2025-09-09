@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -147,15 +148,23 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
-      <header className="flex items-center justify-between p-4 border-b shrink-0 z-10 bg-background">
+      <header className="flex items-center justify-between p-4 border-b shrink-0 z-20 bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-2">
           <MapIcon className="h-8 w-8 text-accent" />
           <h1 className="text-2xl font-bold font-headline text-gray-800">GeoExplorer</h1>
         </div>
       </header>
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 overflow-hidden">
-        <div className="lg:col-span-1 flex flex-col gap-4">
-          <Card>
+      <main className="flex-1 relative">
+        <div className="absolute inset-0 z-0">
+          <GeoMap 
+            locations={filteredLocations} 
+            center={center} 
+            zoom={zoom}
+            onMarkerClick={handleMarkerClick}
+          />
+        </div>
+        <div className="absolute top-4 left-4 z-10 w-full max-w-sm lg:max-w-md">
+          <Card className="bg-background/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Filtros</CardTitle>
               <CardDescription>Selecciona un departamento y municipio para ver en el mapa.</CardDescription>
@@ -191,16 +200,6 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
-        </div>
-        <div className="lg:col-span-2 relative min-h-[400px] lg:min-h-0">
-          <div className="absolute inset-0 z-0 rounded-lg overflow-hidden">
-            <GeoMap 
-              locations={filteredLocations} 
-              center={center} 
-              zoom={zoom}
-              onMarkerClick={handleMarkerClick}
-            />
-          </div>
         </div>
       </main>
     </div>
