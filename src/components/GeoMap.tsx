@@ -1,9 +1,8 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+import L, { Map as LeafletMap } from 'leaflet';
 import type { Location } from '@/types';
-import React, { useEffect } from 'react';
 
 const markerHtml = (color: string) => `
   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">
@@ -27,16 +26,41 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-function MapViewUpdater({ center, zoom }: { center: [number, number], zoom: number }) {
-  const map = useMap();
+
+interface MapUpdaterProps {
+  map: LeafletMap;
+  locations: Location[];
+  center: [number, number];
+  zoom: number;
+}
+
+function MapUpdater({ map, locations, center, zoom }: MapUpdaterProps) {
+  const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
+
   useEffect(() => {
-    map.flyTo(center, zoom, {
-      animate: true,
-      duration: 1.5,
-    });
+    if (map) {
+      map.flyTo(center, zoom, {
+        animate: true,
+        duration: 1.5,
+      });
+    }
   }, [center, zoom, map]);
+
+  useEffect(() => {
+    if (map) {
+      markersRef.current.clearLayers();
+      locations.forEach(loc => {
+        const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
+        marker.bindPopup(`<div class="font-bold">${loc.nombre}</div>`);
+        markersRef.current.addLayer(marker);
+      });
+      markersRef.current.addTo(map);
+    }
+  }, [locations, map]);
+
   return null;
 }
+
 
 interface GeoMapProps {
   locations: Location[];
@@ -44,38 +68,39 @@ interface GeoMapProps {
   zoom: number;
 }
 
-const MapContent = ({ locations, center, zoom }: GeoMapProps) => {
-  return (
-    <>
-      {locations.map(loc => (
-        <Marker key={loc.id_dane} position={[loc.latitud, loc.longitud]} icon={defaultIcon}>
-          <Popup>
-            <div className="font-bold">{loc.nombre}</div>
-          </Popup>
-        </Marker>
-      ))}
-      <MapViewUpdater center={center} zoom={zoom} />
-    </>
-  );
-};
-
 const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
-  const initialCenter: [number, number] = [4.7110, -74.0721];
-  const initialZoom = 6;
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [map, setMap] = useState<LeafletMap | null>(null);
+
+  useEffect(() => {
+    if (mapContainerRef.current && !map) {
+      const leafletMap = L.map(mapContainerRef.current, {
+        center: center,
+        zoom: zoom,
+        scrollWheelZoom: true,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(leafletMap);
+      
+      setMap(leafletMap);
+    }
+  }, [mapContainerRef, map, center, zoom]);
+
+  useEffect(() => {
+    return () => {
+      if (map) {
+        map.remove();
+      }
+    };
+  }, [map]);
+  
 
   return (
-    <MapContainer
-      center={initialCenter}
-      zoom={initialZoom}
-      scrollWheelZoom={true}
-      className="h-full w-full"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <MapContent locations={locations} center={center} zoom={zoom} />
-    </MapContainer>
+    <div ref={mapContainerRef} className="h-full w-full">
+      {map && <MapUpdater map={map} locations={locations} center={center} zoom={zoom} />}
+    </div>
   );
 };
 
