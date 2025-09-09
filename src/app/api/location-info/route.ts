@@ -8,8 +8,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, message: 'ID is required' }, { status: 400 });
   }
 
-  const supabaseUrl = 'https://nlgikyrikqtozdaqhgvg.supabase.co/rest/v1/rpc/data_off';
-  const supabaseApiKey = 'llave';
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseApiKey = process.env.SUPABASE_API_KEY;
+
+  if (!supabaseUrl || !supabaseApiKey) {
+    return NextResponse.json({ success: false, message: 'Supabase URL or API Key is not configured' }, { status: 500 });
+  }
 
   try {
     const response = await fetch(supabaseUrl, {
@@ -30,14 +34,12 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     
-    // Supabase RPC returns an array, we get the first element
     const locationData = data[0];
 
     if (!locationData) {
         return NextResponse.json({ success: false, message: 'Location not found' }, { status: 404 });
     }
 
-    // Adapt the response to the format expected by the frontend
     const formattedData = {
         municipio: locationData.nombre_municipio,
         departamento: locationData.nombre_departamento,
