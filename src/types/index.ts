@@ -1,6 +1,7 @@
 export type Location = {
   id_dane: string;
   nombre: string;
+  nombre_municipio?: string;
   latitud: number;
   longitud: number;
   departamento?: string;
