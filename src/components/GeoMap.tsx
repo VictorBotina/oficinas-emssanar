@@ -43,7 +43,7 @@ interface GeoMapProps {
   activeLocation: Location | null;
 }
 
-const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
+const MapContent = ({ locations, activeLocation }: GeoMapProps) => {
   const defaultCenter: [number, number] = [4.7110, -74.0721];
   const defaultZoom = 6;
   
@@ -63,16 +63,7 @@ const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
   }
 
   return (
-    <MapContainer
-      center={center}
-      zoom={zoom}
-      scrollWheelZoom={true}
-      className="h-full w-full"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <>
       {locations.map(loc => (
         <Marker key={loc.id_dane} position={[loc.latitud, loc.longitud]} icon={defaultIcon}>
           <Popup>
@@ -81,8 +72,28 @@ const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
         </Marker>
       ))}
       <MapViewUpdater center={center} zoom={zoom} />
+    </>
+  );
+};
+
+const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
+  const initialCenter: [number, number] = [4.7110, -74.0721];
+  const initialZoom = 6;
+
+  return (
+    <MapContainer
+      center={initialCenter}
+      zoom={initialZoom}
+      scrollWheelZoom={true}
+      className="h-full w-full"
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <MapContent locations={locations} activeLocation={activeLocation} />
     </MapContainer>
   );
 };
 
-export default React.memo(GeoMap);
+export default GeoMap;
