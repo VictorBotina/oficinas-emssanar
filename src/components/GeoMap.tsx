@@ -111,7 +111,7 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }
                 return res.json()
               })
               .then(result => {
-                onMarkerClick?.(`API response for ${loc.id_dane}: ${JSON.stringify(result)}`);
+                onMarkerClick?.(`API response for ${loc.id_dane}: ${JSON.stringify(result, null, 2)}`);
                 if (result.success) {
                   popup.setContent(createPopupContent(result.data));
                 } else {

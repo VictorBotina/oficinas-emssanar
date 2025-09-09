@@ -33,6 +33,9 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     
+    // Log the raw response from Supabase to the server console
+    console.log('Raw response from Supabase:', JSON.stringify(data, null, 2));
+
     // Supabase RPC calls return an array, even for a single result.
     const locationData = data[0];
 
