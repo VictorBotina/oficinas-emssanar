@@ -56,22 +56,26 @@ export async function GET(request: Request) {
   const supabaseApiKey = process.env.SUPABASE_API_KEY;
 
   if (!supabaseUrl || !supabaseApiKey) {
-    console.error('Supabase configuration missing.');
+    console.error('Supabase URL or API Key is not configured in .env file.');
     return NextResponse.json(
-      { success: false, message: 'Supabase URL or API Key is not configured' },
+      { success: false, message: 'Server configuration error.' },
       { status: 500 }
     );
   }
+  
+  const rpcUrl = `${supabaseUrl}/rest/v1/rpc/of_emssanar`;
+  console.log(`[SERVER] Supabase RPC URL: ${rpcUrl}`);
+  console.log(`[SERVER] Using Supabase API Key: ${supabaseApiKey.substring(0, 10)}...`);
 
   try {
     const postBody = { id_dane: id };
     
-    console.log('Supabase API request POST body:', JSON.stringify(postBody));
+    console.log('[SERVER] Supabase API request POST body:', JSON.stringify(postBody));
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), SUPABASE_TIMEOUT);
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/rpc/of_emssanar`, {
+    const response = await fetch(rpcUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,10 +90,10 @@ export async function GET(request: Request) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        console.error('Supabase API error:', {
+        console.error('[SERVER] Supabase API error response:', {
             status: response.status,
             statusText: response.statusText,
-            response: errorText,
+            body: errorText,
         });
         return NextResponse.json(
             { success: false, message: `Error from Supabase: ${response.statusText}` },
@@ -99,18 +103,18 @@ export async function GET(request: Request) {
     
     const data: SupabaseApiResponse = await response.json();
     
-    console.log('Supabase API raw response:', JSON.stringify(data));
+    console.log('[SERVER] Supabase API raw response:', JSON.stringify(data, null, 2));
 
     if (!data || !data.success) {
         const message = data.message || 'No data found in Supabase response.';
-        console.warn('Supabase function returned failure or no data:', { id, message });
+        console.warn('[SERVER] Supabase function returned failure or no data:', { id, message });
         return NextResponse.json({ success: false, message }, { status: 404 });
     }
     
     const locationData = data.data;
 
     if (!locationData) {
-        console.error('Data object is missing in successful Supabase response', { receivedData: data });
+        console.error('[SERVER] Data object is missing in successful Supabase response:', { receivedData: data });
         return NextResponse.json(
             { success: false, message: 'Incomplete data received from server' },
             { status: 502 }
@@ -121,7 +125,7 @@ export async function GET(request: Request) {
     const missingFields = requiredFields.filter(field => !locationData[field as keyof SupabaseLocationData]);
 
     if (missingFields.length > 0) {
-      console.error('Missing required fields in response from Supabase function:', {
+      console.error('[SERVER] Missing required fields in response from Supabase function:', {
         missingFields,
         receivedData: locationData,
       });
@@ -147,14 +151,14 @@ export async function GET(request: Request) {
 
   } catch (error: any) {
     if (error.name === 'AbortError') {
-      console.error('Supabase request timeout:', { id, timeout: SUPABASE_TIMEOUT });
+      console.error('[SERVER] Supabase request timeout:', { id, timeout: SUPABASE_TIMEOUT });
       return NextResponse.json(
         { success: false, message: 'Request timeout' },
         { status: 504 }
       );
     }
 
-    console.error('Internal server error:', {
+    console.error('[SERVER] Internal server error:', {
       error: error.message,
       stack: error.stack,
       id,
