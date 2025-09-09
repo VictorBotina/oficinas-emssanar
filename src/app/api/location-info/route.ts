@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-// Interfaces para tipado
 interface SupabaseLocationData {
   municipio: string;
   departamento: string;
@@ -31,7 +30,6 @@ interface ApiResponse {
   data?: FormattedLocationData;
 }
 
-// Timeout para la llamada a Supabase (5 segundos)
 const SUPABASE_TIMEOUT = 5000;
 
 export async function GET(request: Request) {
