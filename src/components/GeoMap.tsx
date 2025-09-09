@@ -33,12 +33,11 @@ L.Icon.Default.mergeOptions({
 const PopupContent = ({ data }: { data: LocationInfo }) => `
   <div class="p-0.5 max-w-sm font-sans overflow-hidden rounded-xl shadow-lg" style="font-family: 'PT Sans', sans-serif;">
     <div class="bg-card text-card-foreground">
-      <div class="p-4 bg-gray-50/50 border-b flex items-center gap-4">
+      <div class="p-4 flex items-center gap-4 border-b border-gray-100">
         <img src="https://emssanareps.co/images/logo_emssanareps.svg" alt="Logo Emssanar" class="h-10 w-auto" />
-        <div>
-          <h3 class="text-lg font-bold text-gray-800">${data.municipio}</h3>
-          <p class="text-sm text-gray-500 -mt-0.5">${data.departamento}</p>
-        </div>
+        <h3 class="text-lg font-bold text-gray-800">
+          ${data.municipio}<span class="text-gray-500 font-normal">, ${data.departamento}</span>
+        </h3>
       </div>
       <div class="p-4 space-y-4 text-base">
         <div class="flex items-start gap-3">
