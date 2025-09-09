@@ -34,12 +34,14 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     
+    // Supabase RPC calls return an array, even for a single result.
     const locationData = data[0];
 
     if (!locationData) {
         return NextResponse.json({ success: false, message: 'Location not found' }, { status: 404 });
     }
 
+    // Directly use the fields from the Supabase response
     const formattedData = {
         municipio: locationData.nombre_municipio,
         departamento: locationData.nombre_departamento,
