@@ -40,28 +40,11 @@ function MapViewUpdater({ center, zoom }: { center: [number, number], zoom: numb
 
 interface GeoMapProps {
   locations: Location[];
-  activeLocation: Location | null;
+  center: [number, number];
+  zoom: number;
 }
 
-const MapContent = ({ locations, activeLocation }: GeoMapProps) => {
-  const defaultCenter: [number, number] = [4.7110, -74.0721];
-  const defaultZoom = 6;
-  
-  let center = defaultCenter;
-  let zoom = defaultZoom;
-
-  if (activeLocation) {
-    center = [activeLocation.latitud, activeLocation.longitud];
-    zoom = String(activeLocation.id_dane).length === 5 ? 12 : 8;
-  } else if (locations.length > 0) {
-    const totalLat = locations.reduce((acc, loc) => acc + loc.latitud, 0);
-    const totalLng = locations.reduce((acc, loc) => acc + loc.longitud, 0);
-    if(locations.length > 0) {
-      center = [totalLat / locations.length, totalLng / locations.length];
-      zoom = 7;
-    }
-  }
-
+const MapContent = ({ locations, center, zoom }: GeoMapProps) => {
   return (
     <>
       {locations.map(loc => (
@@ -76,7 +59,7 @@ const MapContent = ({ locations, activeLocation }: GeoMapProps) => {
   );
 };
 
-const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
+const GeoMap = ({ locations, center, zoom }: GeoMapProps) => {
   const initialCenter: [number, number] = [4.7110, -74.0721];
   const initialZoom = 6;
 
@@ -91,7 +74,7 @@ const GeoMap = ({ locations, activeLocation }: GeoMapProps) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <MapContent locations={locations} activeLocation={activeLocation} />
+      <MapContent locations={locations} center={center} zoom={zoom} />
     </MapContainer>
   );
 };

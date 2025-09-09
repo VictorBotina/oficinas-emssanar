@@ -19,6 +19,8 @@ const GeoMap = dynamic(() => import("@/components/GeoMap"), {
 
 const ALL_DEPARTMENTS = "__ALL_DEPARTMENTS__";
 const ALL_MUNICIPALITIES = "__ALL_MUNICIPALITIES__";
+const DEFAULT_CENTER: [number, number] = [4.7110, -74.0721];
+const DEFAULT_ZOOM = 6;
 
 export default function Home() {
   const { toast } = useToast();
@@ -29,27 +31,21 @@ export default function Home() {
   const [selectedDept, setSelectedDept] = React.useState<string>(ALL_DEPARTMENTS);
   const [selectedMuni, setSelectedMuni] = React.useState<string>(ALL_MUNICIPALITIES);
 
-  const processLocations = React.useCallback((data: Location[]) => {
-    if (!Array.isArray(data) || data.some(item => !item.id_dane || !item.nombre || item.latitud === undefined || item.longitud === undefined)) {
-      toast({
-        variant: "destructive",
-        title: "Invalid File",
-        description: "The JSON file is not in the correct format.",
-      });
-      return;
-    }
-    setAllLocations(data);
-    const depts = data.filter(loc => String(loc.id_dane).length === 2 || String(loc.id_dane).length === 1).sort((a, b) => a.nombre.localeCompare(b.nombre));
-    setDepartments(depts);
-    setSelectedDept(ALL_DEPARTMENTS);
-    setSelectedMuni(ALL_MUNICIPALITIES);
-  }, [toast]);
-
   React.useEffect(() => {
     fetch('/locations.json')
       .then(res => res.json())
       .then(data => {
-        processLocations(data);
+        if (!Array.isArray(data) || data.some(item => !item.id_dane || !item.nombre || item.latitud === undefined || item.longitud === undefined)) {
+          toast({
+            variant: "destructive",
+            title: "Invalid File",
+            description: "The JSON file is not in the correct format.",
+          });
+          return;
+        }
+        setAllLocations(data);
+        const depts = data.filter(loc => String(loc.id_dane).length === 2 || String(loc.id_dane).length === 1).sort((a, b) => a.nombre.localeCompare(b.nombre));
+        setDepartments(depts);
       })
       .catch(() => {
         toast({
@@ -58,7 +54,7 @@ export default function Home() {
           description: "Could not load default location data.",
         });
       });
-  }, [processLocations, toast]);
+  }, [toast]);
   
   React.useEffect(() => {
     if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
@@ -73,20 +69,31 @@ export default function Home() {
   }, [selectedDept, allLocations]);
 
   const filteredLocations = React.useMemo(() => {
-    if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) {
+    if (selectedMuni !== ALL_MUNICIPALITIES) {
       return allLocations.filter(loc => loc.id_dane === selectedMuni);
     }
-    if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
+    if (selectedDept !== ALL_DEPARTMENTS) {
       return allLocations.filter(loc => String(loc.id_dane).length === 5 && String(loc.id_dane).startsWith(selectedDept));
     }
     return allLocations.filter(loc => String(loc.id_dane).length === 5);
   }, [selectedDept, selectedMuni, allLocations]);
   
-  const activeLocation = React.useMemo(() => {
-      if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) return allLocations.find(m => m.id_dane === selectedMuni);
-      if (selectedDept && selectedDept !== ALL_DEPARTMENTS) return departments.find(d => d.id_dane === selectedDept);
-      return null;
-  }, [selectedDept, selectedMuni, departments, allLocations]);
+  const { center, zoom } = React.useMemo(() => {
+    if (selectedMuni !== ALL_MUNICIPALITIES) {
+      const muni = allLocations.find(m => m.id_dane === selectedMuni);
+      if (muni) return { center: [muni.latitud, muni.longitud] as [number, number], zoom: 12 };
+    }
+    if (selectedDept !== ALL_DEPARTMENTS) {
+      const dept = departments.find(d => d.id_dane === selectedDept);
+      if (dept) return { center: [dept.latitud, dept.longitud] as [number, number], zoom: 8 };
+    }
+    if (filteredLocations.length > 0) {
+      const totalLat = filteredLocations.reduce((acc, loc) => acc + loc.latitud, 0);
+      const totalLng = filteredLocations.reduce((acc, loc) => acc + loc.longitud, 0);
+      return { center: [totalLat / filteredLocations.length, totalLng / filteredLocations.length] as [number, number], zoom: 7 };
+    }
+    return { center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM };
+  }, [selectedDept, selectedMuni, departments, allLocations, filteredLocations]);
   
   const handleDeptChange = (value: string) => {
     setSelectedDept(value);
@@ -144,7 +151,7 @@ export default function Home() {
           </Card>
         </div>
         <div className="absolute inset-0 z-0">
-           <GeoMap locations={filteredLocations} activeLocation={activeLocation} />
+           <GeoMap locations={filteredLocations} center={center} zoom={zoom} />
         </div>
       </main>
     </div>
