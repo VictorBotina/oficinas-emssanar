@@ -10,12 +10,6 @@ interface DebugConsoleProps {
 }
 
 export default function DebugConsole({ logs }: DebugConsoleProps) {
-  const [clientNow, setClientNow] = React.useState<Date | null>(null);
-
-  React.useEffect(() => {
-    setClientNow(new Date());
-  }, []);
-
   return (
     <Card className="bg-gray-900 text-gray-200 font-mono">
       <CardHeader className="flex flex-row items-center gap-2 pb-2">
@@ -26,9 +20,6 @@ export default function DebugConsole({ logs }: DebugConsoleProps) {
         <ScrollArea className="h-48 w-full rounded-md border border-gray-700 bg-black p-2">
           {logs.map((log, index) => (
             <div key={index} className="text-xs text-green-400 whitespace-pre-wrap">
-              {clientNow && (
-                 <span className="text-gray-500 mr-2">{`[${clientNow.toLocaleTimeString()}]>`}</span>
-              )}
               {log}
             </div>
           ))}

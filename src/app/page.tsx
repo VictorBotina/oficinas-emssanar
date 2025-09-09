@@ -34,14 +34,13 @@ export default function Home() {
   const [selectedMuni, setSelectedMuni] = React.useState<string>(ALL_MUNICIPALITIES);
   const [selectedLocationInfo, setSelectedLocationInfo] = React.useState<LocationInfo | null>(null);
   const [isLocationInfoLoading, setIsLocationInfoLoading] = React.useState(false);
-  const [logs, setLogs] = React.useState<string[]>(['Debug console initialized. Waiting for interaction...']);
+  const [logs, setLogs] = React.useState<string[]>(['Debug console initialized.']);
 
   const addLog = (log: string) => {
-    setLogs(prevLogs => [log, ...prevLogs]);
+    setLogs(prevLogs => [`[${new Date().toLocaleTimeString()}] ${log}`, ...prevLogs]);
   }
 
   React.useEffect(() => {
-    addLog("Attempting to fetch initial location data from /locations.json");
     fetch('/locations.json')
       .then(res => {
         if (!res.ok) {
@@ -51,7 +50,6 @@ export default function Home() {
       })
       .then(data => {
         if (!Array.isArray(data) || data.some(item => !item.id_dane || !item.nombre || item.latitud === undefined || item.longitud === undefined)) {
-          addLog("Error: /locations.json file is not in the correct format.");
           toast({
             variant: "destructive",
             title: "Invalid File",
@@ -59,13 +57,11 @@ export default function Home() {
           });
           return;
         }
-        addLog("Successfully fetched and parsed /locations.json.");
         setAllLocations(data);
         const depts = data.filter(loc => String(loc.id_dane).length === 2 || String(loc.id_dane).length === 1).sort((a, b) => a.nombre.localeCompare(b.nombre));
         setDepartments(depts);
       })
       .catch((error) => {
-        addLog(`Error fetching /locations.json: ${error.message}`);
         toast({
           variant: "destructive",
           title: "Failed to load data",
@@ -76,7 +72,6 @@ export default function Home() {
   
   React.useEffect(() => {
     if (selectedDept && selectedDept !== ALL_DEPARTMENTS) {
-      addLog(`Department selected: ${selectedDept}. Filtering municipalities.`);
       const munis = allLocations
         .filter(loc => String(loc.id_dane).length === 5 && String(loc.id_dane).startsWith(selectedDept))
         .sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -91,23 +86,14 @@ export default function Home() {
   React.useEffect(() => {
     if (selectedMuni && selectedMuni !== ALL_MUNICIPALITIES) {
       setIsLocationInfoLoading(true);
-      addLog(`Municipality selected: ${selectedMuni}. Fetching details from /api/location-info...`);
+      addLog(`POST to Supabase with id_dane: ${selectedMuni}`);
       fetch(`/api/location-info?id=${selectedMuni}`)
-        .then(res => {
-          addLog(`API response status: ${res.status}`);
-          addLog(`API response content-type: ${res.headers.get('Content-Type')}`);
-          if (!res.ok) {
-            throw new Error(`API returned status ${res.status}`);
-          }
-          return res.json();
-        })
+        .then(res => res.json())
         .then(result => {
-          addLog(`API response data: ${JSON.stringify(result, null, 2)}`);
+          addLog(`API Response: ${JSON.stringify(result, null, 2)}`);
           if (result.success) {
-            addLog("API call successful. Updating location details.");
             setSelectedLocationInfo(result.data);
           } else {
-            addLog(`API call failed: ${result.message}`);
             toast({
               variant: "destructive",
               title: "Error",
@@ -130,9 +116,6 @@ export default function Home() {
         });
     } else {
       setSelectedLocationInfo(null);
-      if (selectedMuni === ALL_MUNICIPALITIES) {
-          addLog("Municipality selection cleared.");
-      }
     }
   }, [selectedMuni, toast]);
 

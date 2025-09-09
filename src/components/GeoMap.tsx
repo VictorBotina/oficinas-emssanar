@@ -87,7 +87,7 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
         
         marker.on('click', () => {
-          onMarkerClick?.(`Marker clicked: ${loc.nombre} (${loc.id_dane}). Fetching details...`);
+          onMarkerClick?.(`POST to Supabase with id_dane: ${loc.id_dane}`);
           if (popupRef.current) {
             popupRef.current.remove();
           }
@@ -101,17 +101,13 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }
             .openOn(map);
           
           if (selectedLocationInfo && selectedLocationInfo.municipio === loc.nombre) {
-            onMarkerClick?.(`Details already loaded for ${loc.nombre}. Displaying from state.`);
+            onMarkerClick?.(`API Response: ${JSON.stringify({success: true, data: selectedLocationInfo}, null, 2)}`);
             popup.setContent(createPopupContent(selectedLocationInfo));
           } else {
             fetch(`/api/location-info?id=${loc.id_dane}`)
-              .then(res => {
-                onMarkerClick?.(`API response status for ${loc.id_dane}: ${res.status}`);
-                onMarkerClick?.(`API response content-type for ${loc.id_dane}: ${res.headers.get('Content-Type')}`);
-                return res.json()
-              })
+              .then(res => res.json())
               .then(result => {
-                onMarkerClick?.(`API response for ${loc.id_dane}: ${JSON.stringify(result, null, 2)}`);
+                onMarkerClick?.(`API Response: ${JSON.stringify(result, null, 2)}`);
                 if (result.success) {
                   popup.setContent(createPopupContent(result.data));
                 } else {
@@ -119,7 +115,7 @@ const GeoMap = ({ locations, center, zoom, selectedLocationInfo, onMarkerClick }
                 }
               })
               .catch((err) => {
-                onMarkerClick?.(`API fetch error for ${loc.id_dane}: ${err.message}`);
+                onMarkerClick?.(`Fetch error: ${err.message}`);
                 popup.setContent(`<div class="font-bold">${loc.nombre}</div><p>Error fetching details.</p>`);
               });
           }

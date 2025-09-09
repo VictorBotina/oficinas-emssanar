@@ -16,39 +16,39 @@ export async function GET(request: Request) {
   }
 
   try {
+    const postBody = { id_dane: id };
+    console.log('Sending to Supabase:', JSON.stringify(postBody, null, 2));
+
     const response = await fetch(supabaseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'apikey': supabaseApiKey
       },
-      body: JSON.stringify({ id_dane: id })
+      body: JSON.stringify(postBody)
     });
+    
+    const responseText = await response.text();
+    console.log('Raw response from Supabase:', responseText);
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Supabase API error:', errorData);
+      console.error('Supabase API error:', responseText);
       return NextResponse.json({ success: false, message: `Error from Supabase: ${response.statusText}` }, { status: response.status });
     }
-
-    const data = await response.json();
     
-    // Log the raw response from Supabase to the server console
-    console.log('Raw response from Supabase:', JSON.stringify(data, null, 2));
+    const data = JSON.parse(responseText);
 
-    // Supabase RPC calls return an array, even for a single result.
     const locationData = data[0];
 
     if (!locationData) {
         return NextResponse.json({ success: false, message: 'Location not found in Supabase response' }, { status: 404 });
     }
 
-    // Map the fields from the Supabase response to the fields expected by the frontend.
     const formattedData = {
         municipio: locationData.nombre_municipio,
         departamento: locationData.nombre_departamento,
         direccion: locationData.direccion,
-        horario_atencion: locationData.horario, // Mapped from 'horario'
+        horario_atencion: locationData.horario,
         servicios_sub: locationData.servicios_sub,
         servicios_cont: locationData.servicios_cont
     };
