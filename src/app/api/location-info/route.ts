@@ -38,15 +38,15 @@ export async function GET(request: Request) {
     const locationData = data[0];
 
     if (!locationData) {
-        return NextResponse.json({ success: false, message: 'Location not found' }, { status: 404 });
+        return NextResponse.json({ success: false, message: 'Location not found in Supabase response' }, { status: 404 });
     }
 
-    // Directly use the fields from the Supabase response
+    // Map the fields from the Supabase response to the fields expected by the frontend.
     const formattedData = {
         municipio: locationData.nombre_municipio,
         departamento: locationData.nombre_departamento,
         direccion: locationData.direccion,
-        horario_atencion: locationData.horario,
+        horario_atencion: locationData.horario, // Mapped from 'horario'
         servicios_sub: locationData.servicios_sub,
         servicios_cont: locationData.servicios_cont
     };
