@@ -158,7 +158,7 @@ export default function Home() {
           />
         </div>
         <div className="absolute top-4 left-4 z-10 w-full max-w-sm lg:max-w-md">
-          <Card className="bg-background/80 backdrop-blur-sm">
+          <Card className="bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Filtros</CardTitle>
               <CardDescription>Selecciona un departamento y municipio para filtrar, o haz clic sobre una ubicación para consultar la información.</CardDescription>
