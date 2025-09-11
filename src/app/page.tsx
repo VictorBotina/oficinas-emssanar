@@ -161,7 +161,7 @@ export default function Home() {
           <Card className="bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Filtros</CardTitle>
-              <CardDescription>Selecciona un departamento y un municipio para filtrar, y luego haz clic sobre el ícono de la ubicación en el mapa para consultar la información detallada.</CardDescription>
+              <CardDescription className="text-[14px]">Selecciona un departamento y un municipio para filtrar, y luego haz clic sobre el ícono de la ubicación en el mapa para consultar la información detallada.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
