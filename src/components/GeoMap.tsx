@@ -188,7 +188,7 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick, supabaseUrl, supabaseK
         markers.addLayer(marker);
       });
     }
-  }, [locations, onMarkerClick]);
+  }, [locations, onMarkerClick, supabaseUrl, supabaseKey]); // Add supabaseUrl and supabaseKey as dependencies
   
   useEffect(() => {
     const cleanup = () => {
