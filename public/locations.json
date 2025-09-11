@@ -1,47 +1,502 @@
 {
-  "Nariño": [
-    {
-      "nombre_municipio": "Pasto",
-      "id_dane": "52001",
-      "latitud": 1.2270331033514967,
-      "longitud": -77.28599173667307
-    },
-    {
-      "nombre_municipio": "Ipiales",
-      "id_dane": "52364",
-      "latitud": 0.8269842833029873,
-      "longitud": -77.63941242011808
-    }
-  ],
-  "putumayo": [
-    {
-      "nombre_municipio": "Mocoa",
-      "id_dane": "86001",
-      "latitud": 1.14889,
-      "longitud": -76.64528
-    },
-    {
-      "nombre_municipio": "Puerto Asís",
-      "id_dane": "86569",
-      "latitud": 0.50528,
-      "longitud": -76.50333
-    }
-  ],
-  "cauca": [
-    {
-      "nombre_municipio": "Popayán",
-      "id_dane": "19001",
-      "latitud": 2.44194,
-      "longitud": -76.61306
-    },
-    {
-      "nombre_municipio": "Santander de Quilichao",
-      "id_dane": "19698",
-      "latitud": 3.04889,
-      "longitud": -76.47417
-    }
-  ],
-  "valle del cauca": [
+"Nariño": [
+  {
+    "nombre_municipio": "Albán",
+    "id_dane": "52019",
+    "latitud": 1.47304785934225,
+    "longitud": -77.0813684725736
+  },
+  {
+    "nombre_municipio": "Aldana",
+    "id_dane": "52022",
+    "latitud": 0.8843839295562781,
+    "longitud": -77.70081477368636
+  },
+  {
+    "nombre_municipio": "Ancuya",
+    "id_dane": "52036",
+    "latitud": 1.261776608851164,
+    "longitud": -77.51394722210979
+  },
+  {
+    "nombre_municipio": "Arboleda",
+    "id_dane": "52051",
+    "latitud": 1.50236922157508,
+    "longitud": -77.1345793635066
+  },
+  {
+    "nombre_municipio": "Barbacoas",
+    "id_dane": "52079",
+    "latitud": 1.6711280841322793,
+    "longitud": -78.13935459789161
+  },
+  {
+    "nombre_municipio": "Barbacoas - El Diviso",
+    "id_dane": "527038",
+    "latitud": 1.3612540896018537,
+    "longitud": -78.18673340311122
+  },
+
+  {
+    "nombre_municipio": "Belén",
+    "id_dane": "52083",
+    "latitud": 1.5954928102221253,
+    "longitud": -77.01641452637475
+  },
+  {
+    "nombre_municipio": "Buesaco",
+    "id_dane": "52110",
+    "latitud": 1.3866187752433228,
+    "longitud": -77.15570148656012
+  },
+  {
+    "nombre_municipio": "Chachagüí",
+    "id_dane": "52240",
+    "latitud": 1.3597591971076999,
+    "longitud": -77.28280464704525
+  },
+  {
+    "nombre_municipio": "Colón Genova",
+    "id_dane": "52203",
+    "latitud": 1.644019194804718,
+    "longitud": -77.01886996221896
+  },
+  {
+    "nombre_municipio": "Consacá",
+    "id_dane": "52207",
+    "latitud": 1.2075917020545295,
+    "longitud": -77.4670855411661
+  },
+  {
+    "nombre_municipio": "Contadero",
+    "id_dane": "52210",
+    "latitud": 0.9085892310569866,
+    "longitud": -77.54737363982727
+  },
+  {
+    "nombre_municipio": "Córdoba",
+    "id_dane": "52215",
+    "latitud": 0.8568083302749919,
+    "longitud": -77.51912168550486
+  },
+  {
+    "nombre_municipio": "Cuaspud Carlosama",
+    "id_dane": "52224",
+    "latitud": 0.8625308869170423,
+    "longitud": -77.72839637730476
+  },
+  {
+    "nombre_municipio": "Cumbal",
+    "id_dane": "52227",
+    "latitud": 0.8625308869170423,
+    "longitud": -77.72839637730476
+  },
+  {
+    "nombre_municipio": "Cumbitara",
+    "id_dane": "52233",
+    "latitud": 1.64789320409555,
+    "longitud": -77.5782278017132
+  },
+  {
+    "nombre_municipio": "El Peñol",
+    "id_dane": "52254",
+    "latitud": 1.454452569,
+    "longitud": -77.44021859
+  },
+  {
+    "nombre_municipio": "El Tablón De Gómez",
+    "id_dane": "52258",
+    "latitud": 1.426674595,
+    "longitud": -77.09761748
+  },
+  {
+    "nombre_municipio": "El Tambo",
+    "id_dane": "52260",
+    "latitud": 1.410893082,
+    "longitud": -77.39452605
+  },
+  {
+    "nombre_municipio": "Francisco Pizarro",
+    "id_dane": "52520",
+    "latitud": 2.039923838,
+    "longitud": -78.65840295
+  },
+  {
+    "nombre_municipio": "Funes",
+    "id_dane": "52287",
+    "latitud": 1.000148407,
+    "longitud": -77.44903401
+  },
+  {
+    "nombre_municipio": "Santacruz de Guachavez",
+    "id_dane": "52699",
+    "latitud": 1.516857564,
+    "longitud": -77.25165042
+  },
+  {
+    "nombre_municipio": "Guaitarilla",
+    "id_dane": "52320",
+    "latitud": 1.130623897,
+    "longitud": -77.5481257
+  },
+  {
+    "nombre_municipio": "Gualmatán",
+    "id_dane": "52323",
+    "latitud": 0.921939185,
+    "longitud": -77.56782891
+  },
+  {
+    "nombre_municipio": "Iles",
+    "id_dane": "52352",
+    "latitud": 0.96971839,
+    "longitud": -77.52039407
+  },
+  {
+    "nombre_municipio": "Imués",
+    "id_dane": "52354",
+    "latitud": 1.055050809,
+    "longitud": -77.49638505
+  },
+  {
+    "nombre_municipio": "Ipiales",
+    "id_dane": "52356",
+    "latitud": 0.8269842833029873,
+    "longitud": -77.63941242011808
+  },
+  {
+    "nombre_municipio": "Ipiales - Sucumbios",
+    "id_dane": "524060",
+    "latitud": 0.476812629875687,
+    "longitud": -77.15432299749483
+  },
+  {
+    "nombre_municipio": "La Cruz",
+    "id_dane": "52378",
+    "latitud": 1.603248386,
+    "longitud": -76.97177019
+  },
+  {
+    "nombre_municipio": "La Florida",
+    "id_dane": "52381",
+    "latitud": 1.299206058,
+    "longitud": -77.404512
+  },
+  {
+    "nombre_municipio": "La Llanada",
+    "id_dane": "52385",
+    "latitud": 1.47337431,
+    "longitud": -77.57957264
+  },
+  {
+    "nombre_municipio": "La Unión",
+    "id_dane": "52399",
+    "latitud": 1.600750357,
+    "longitud": -77.13102092
+  },
+  {
+    "nombre_municipio": "Linares",
+    "id_dane": "52411",
+    "latitud": 1.350573027,
+    "longitud": -77.52345863
+  },
+  {
+    "nombre_municipio": "Magüí Payán",
+    "id_dane": "52427",
+    "latitud": 1.765940378,
+    "longitud": -78.18424111
+  },
+  {
+    "nombre_municipio": "Mallama",
+    "id_dane": "52435",
+    "latitud": 1.141080847,
+    "longitud": -77.8644712
+  },
+  {
+    "nombre_municipio": "Nariño",
+    "id_dane": "52480",
+    "latitud": 1.289115059,
+    "longitud": -77.35850085
+  },
+  {
+    "nombre_municipio": "Olaya Herrera",
+    "id_dane": "52490",
+    "latitud": 2.349076583,
+    "longitud": -78.32466538
+  },
+  {
+    "nombre_municipio": "Ospina",
+    "id_dane": "52506",
+    "latitud": 1.058808261,
+    "longitud": -77.56575887
+  },
+  {
+    "nombre_municipio": "Pasto",
+    "id_dane": "52001",
+    "latitud": 1.2270331033514967,
+    "longitud": -77.28599173667307
+  },
+  {
+    "nombre_municipio": "Policarpa",
+    "id_dane": "52540",
+    "latitud": 1.62819724,
+    "longitud": -77.45964585
+  },
+  {
+    "nombre_municipio": "Potosí",
+    "id_dane": "52560",
+    "latitud": 0.807655027,
+    "longitud": -77.57281755
+  },
+  {
+    "nombre_municipio": "Providencia",
+    "id_dane": "52565",
+    "latitud": 1.238991093,
+    "longitud": -77.59731288
+  },
+  {
+    "nombre_municipio": "Puerres",
+    "id_dane": "52573",
+    "latitud": 0.882314593,
+    "longitud": -77.50395999
+  },
+  {
+    "nombre_municipio": "Pupiales",
+    "id_dane": "52585",
+    "latitud": 0.867891084,
+    "longitud": -77.64028146
+  },
+  {
+    "nombre_municipio": "Ricaurte",
+    "id_dane": "52612",
+    "latitud": 1.211668611,
+    "longitud": -77.99517221
+  },
+  {
+    "nombre_municipio": "Roberto Payán",
+    "id_dane": "52621",
+    "latitud": 1.696383001,
+    "longitud": -78.24567128
+  },
+  {
+    "nombre_municipio": "Samaniego",
+    "id_dane": "52678",
+    "latitud": 1.33863512,
+    "longitud": -77.59321338
+  },
+  {
+    "nombre_municipio": "San Bernardo",
+    "id_dane": "52685",
+    "latitud": 1.513340024,
+    "longitud": -77.04701963
+  },
+  {
+    "nombre_municipio": "San Lorenzo",
+    "id_dane": "52687",
+    "latitud": 1.502208287,
+    "longitud": -77.21643879
+  },
+  {
+    "nombre_municipio": "San Pablo",
+    "id_dane": "52693",
+    "latitud": 1.669073058,
+    "longitud": -77.01193415
+  },
+  {
+    "nombre_municipio": "San Pedro De Cartago",
+    "id_dane": "52694",
+    "latitud": 1.668338902,
+    "longitud": -77.01186737
+  },
+  {
+    "nombre_municipio": "Sandoná",
+    "id_dane": "52683",
+    "latitud": 1.28666956762047,
+    "longitud": 1.28666956762047
+  },
+  {
+    "nombre_municipio": "Sapuyes",
+    "id_dane": "52720",
+    "latitud": 1.03815989658108,
+    "longitud": -77.621222930171
+  },
+  {
+    "nombre_municipio": "Taminango",
+    "id_dane": "52786",
+    "latitud": 1.57069590000553,
+    "longitud": -77.2800116742327
+  },
+  {
+    "nombre_municipio": "Tangua",
+    "id_dane": "52788",
+    "latitud": 1.0942165721071,
+    "longitud": -77.3944696959507
+  },
+  {
+    "nombre_municipio": "San Andrés de Tumaco",
+    "id_dane": "52835",
+    "latitud": 1.80635306487533,
+    "longitud": -78.7643242338447
+  },
+  {
+    "nombre_municipio": "Túquerres",
+    "id_dane": "52838",
+    "latitud": 1.08730765765692,
+    "longitud": -77.6195819810095
+  },
+  {
+    "nombre_municipio": "Yacuanquer",
+    "id_dane": "52885",
+    "latitud": 1.11382631449514,
+    "longitud": -77.4019314160729
+  }
+],
+
+
+ "Putumayo": [
+  {
+    "nombre_municipio": "Santiago",
+    "id_dane": "86760",
+    "latitud": 1.1472692160030502,
+    "longitud": -77.00380533981085
+  },
+  {
+    "nombre_municipio": "Colón",
+    "id_dane": "86219",
+    "latitud": 1.1898209848271413,
+    "longitud": -76.97284812338619
+  },
+  {
+    "nombre_municipio": "Sibundoy",
+    "id_dane": "86749",
+    "latitud": 1.2024743455281728,
+    "longitud": -76.91497475902707
+  },
+  {
+    "nombre_municipio": "San Francisco",
+    "id_dane": "86755",
+    "latitud": 1.1761617637960118,
+    "longitud": -76.87554480214024
+  },
+  {
+    "nombre_municipio": "Mocoa",
+    "id_dane": "86001",
+    "latitud": 1.1534453268713323,
+    "longitud": -76.65100004825933
+  },
+  {
+    "nombre_municipio": "Villagarzón",
+    "id_dane": "86885",
+    "latitud": 1.03028013791704,
+    "longitud": -76.61452048459199
+  },
+  {
+    "nombre_municipio": "Puerto Guzmán",
+    "id_dane": "86571",
+    "latitud": 0.9637603032309175,
+    "longitud": -76.40800740381272
+  },
+  {
+    "nombre_municipio": "Puerto Caicedo",
+    "id_dane": "86569",
+    "latitud": 0.6900775810472718,
+    "longitud": -76.60508756129342
+  },
+  {
+    "nombre_municipio": "Puerto Asís",
+    "id_dane": "86568",
+    "latitud": 0.49408280085087825,
+    "longitud": -76.49497961898523
+  },
+  {
+    "nombre_municipio": "Puerto Leguizamo",
+    "id_dane": "86573",
+    "latitud": -0.18499446822506382,
+    "longitud": -74.78438388374138
+  },
+  {
+    "nombre_municipio": "Orito",
+    "id_dane": "86320",
+    "latitud": 0.6564466722140039,
+    "longitud": -76.86207479801797
+  },
+  {
+    "nombre_municipio": "Valle Del Guamuez",
+    "id_dane": "86865",
+    "latitud": 0.4139552884874921,
+    "longitud": -76.91180599668724
+  },
+  {
+    "nombre_municipio": "San Miguel",
+    "id_dane": "86757",
+    "latitud": 0.33924945548474045,
+    "longitud": -76.914677484181
+  }
+],
+
+ "Cauca": [
+  {
+    "nombre_municipio": "Caloto",
+    "id_dane": "19142",
+    "latitud": 3.034171472255568,
+    "longitud": -76.40792456814296
+  },
+  {
+    "nombre_municipio": "Inzá",
+    "id_dane": "19355",
+    "latitud": 2.5493307190031924,
+    "longitud": -76.06483525109637
+  },
+  {
+    "nombre_municipio": "Piamonte",
+    "id_dane": "19533",
+    "latitud": 1.1176581397147491,
+    "longitud": -76.3251673706128
+  },
+  {
+    "nombre_municipio": "Piendamó",
+    "id_dane": "19548",
+    "latitud": 2.642649489839462,
+    "longitud": -76.53727383880666
+  },
+  {
+    "nombre_municipio": "Popayán",
+    "id_dane": "19001",
+    "latitud": 2.446191876752111,
+    "longitud": -76.60653409133647
+  },
+  {
+    "nombre_municipio": "San Sebastián",
+    "id_dane": "19693",
+    "latitud": 1.8390930311755462,
+    "longitud": -76.76970004910869
+  },
+  {
+    "nombre_municipio": "Santander",
+    "id_dane": "19698",
+    "latitud": 3.0083653536217403,
+    "longitud": -76.4862319711184
+  },
+  {
+    "nombre_municipio": "Silvia",
+    "id_dane": "19743",
+    "latitud": 2.6111501209837904,
+    "longitud": -76.37978849011401
+  },
+  {
+    "nombre_municipio": "Sotará",
+    "id_dane": "19760",
+    "latitud": 2.2552624438989466,
+    "longitud": -76.61420416885913
+  },
+  {
+    "nombre_municipio": "Totoró",
+    "id_dane": "19824",
+    "latitud": 2.5115538331812712,
+    "longitud": -76.40173215552976
+  }
+],
+
+  "Valle del Cauca": [
     {
       "nombre_municipio": "Cali",
       "id_dane": "76001",
