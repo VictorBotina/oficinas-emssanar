@@ -498,16 +498,166 @@
 
   "Valle del Cauca": [
     {
-      "nombre_municipio": "Cali",
+      "nombre_municipio": "Andalucía",
+      "id_dane": "76036",
+      "latitud": 4.169785333785938,
+      "longitud": -76.1669270147695
+    },
+    {
+      "nombre_municipio": "Buenaventura",
+      "id_dane": "76109",
+      "latitud": 3.8859229919785863,
+      "longitud": -77.0705352033723
+    },
+    {
+      "nombre_municipio": "Guadalajara de Buga",
+      "id_dane": "76111",
+      "latitud": 3.900627432145965,
+      "longitud": -76.30321580601021
+    },
+    {
+      "nombre_municipio": "Bugalagrande",
+      "id_dane": "76113",
+      "latitud": 4.213113804671,
+      "longitud": -76.15636249391639
+    },
+    {
+      "nombre_municipio": "Caicedonia",
+      "id_dane": "76122",
+      "latitud": 4.328860366326682,
+      "longitud": -75.82899807884027
+    },
+    {
+      "nombre_municipio": "Cali - Alfonso Lopez",
       "id_dane": "76001",
-      "latitud": 3.45167,
-      "longitud": -76.5325
+      "latitud": 3.454500075998685,
+      "longitud": -76.48480477851221
+    },
+    {
+      "nombre_municipio": "Cali - El Diamante",
+      "id_dane": "76002",
+      "latitud": 3.4219645215877894,
+      "longitud": -76.49998867798655
+    },
+    {
+      "nombre_municipio": "Cali - San Fernando",
+      "id_dane": "76003",
+      "latitud": 3.4342161169907945,
+      "longitud": -76.54119734930248
+    },
+    {
+      "nombre_municipio": "Cali - Tequendama",
+      "id_dane": "76004",
+      "latitud": 3.423855724792618,
+      "longitud": -76.54502252927597
+    },
+    {
+      "nombre_municipio": "Candelaria",
+      "id_dane": "76130",
+      "latitud": 3.410777508810675,
+      "longitud": -76.34765903093228
+    },
+    {
+      "nombre_municipio": "Candelaria - Villagorgona",
+      "id_dane": "76131",
+      "latitud": 3.3946579273356714,
+      "longitud": -76.38611005088637
+    },
+    {
+      "nombre_municipio": "El Cerrito",
+      "id_dane": "76248",
+      "latitud": 3.6832355674574777,
+      "longitud": -76.30917796719001
+    },
+    {
+      "nombre_municipio": "El Dovio",
+      "id_dane": "76250",
+      "latitud": 4.513040292231988,
+      "longitud": -76.23842256503237
+    },
+    {
+      "nombre_municipio": "Florida",
+      "id_dane": "76275",
+      "latitud": 3.3206650210466995,
+      "longitud": -76.22906529597947
+    },
+    {
+      "nombre_municipio": "Ginebra",
+      "id_dane": "76306",
+      "latitud": 3.7226020448036565,
+      "longitud": -76.2687293774301
+    },
+    {
+      "nombre_municipio": "Guacarí",
+      "id_dane": "76318",
+      "latitud": 3.763357926007037,
+      "longitud": -76.32984112227297
     },
     {
       "nombre_municipio": "Palmira",
       "id_dane": "76520",
-      "latitud": 3.53722,
-      "longitud": -76.29472
+      "latitud": 3.534200661575702,
+      "longitud": -76.297282800827
+    },
+    {
+      "nombre_municipio": "Pradera",
+      "id_dane": "76563",
+      "latitud": 3.4175413666560566,
+      "longitud": -76.24462066465125
+    },
+    {
+      "nombre_municipio": "Restrepo",
+      "id_dane": "76606",
+      "latitud": 3.8216700669336694,
+      "longitud": -76.5257180165069
+    },
+    {
+      "nombre_municipio": "Riofrío",
+      "id_dane": "76616",
+      "latitud": 4.156858870795545,
+      "longitud": -76.28762986004254
+    },
+    {
+      "nombre_municipio": "San Pedro",
+      "id_dane": "76670",
+      "latitud": 3.995062587801215,
+      "longitud": -76.22655052781518
+    },
+    {
+      "nombre_municipio": "Sevilla",
+      "id_dane": "76736",
+      "latitud": 4.2674061158348895,
+      "longitud": -75.93291733077889
+    },
+    {
+      "nombre_municipio": "Trujillo",
+      "id_dane": "76828",
+      "latitud": 4.211827733255168,
+      "longitud": -76.31976317776494
+    },
+    {
+      "nombre_municipio": "Tuluá",
+      "id_dane": "76834",
+      "latitud": 4.0845149592643875,
+      "longitud": -76.19294591403822
+    },
+    {
+      "nombre_municipio": "Versalles",
+      "id_dane": "76863",
+      "latitud": 4.575390421719207,
+      "longitud": -76.20024155165028
+    },
+    {
+      "nombre_municipio": "Yotoco",
+      "id_dane": "76890",
+      "latitud": 3.860487206072291,
+      "longitud": -76.38458519777205
+    },
+    {
+      "nombre_municipio": "Zarzal",
+      "id_dane": "76895",
+      "latitud": 4.394378549589919,
+      "longitud": -76.07360547612825
     }
   ]
 }

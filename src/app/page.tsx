@@ -148,12 +148,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
-      <header className="flex items-center justify-between p-4 border-b shrink-0 z-20 bg-background/80 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-          <MapIcon className="h-8 w-8 text-accent" />
-          <h1 className="text-2xl font-bold font-headline text-gray-800">GeoExplorer</h1>
-        </div>
-      </header>
       <main className="flex-1 relative">
         <div className="absolute inset-0 z-0">
           <GeoMap 
