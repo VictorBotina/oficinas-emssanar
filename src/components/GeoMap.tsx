@@ -99,15 +99,14 @@ interface GeoMapProps {
   center: [number, number];
   zoom: number;
   onMarkerClick: (id_dane: string) => void;
+  supabaseUrl?: string;
+  supabaseKey?: string;
 }
 
-const GeoMap = ({ locations, center, zoom, onMarkerClick }: GeoMapProps) => {
+const GeoMap = ({ locations, center, zoom, onMarkerClick, supabaseUrl, supabaseKey }: GeoMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_API_KEY;
 
   const handleMarkerApiCall = async (id_dane: string, marker: Marker) => {
     if (!supabaseUrl || !supabaseKey) {
