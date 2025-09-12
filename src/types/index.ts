@@ -1,3 +1,5 @@
+//V01
+
 export type Location = {
   id_dane: string;
   nombre: string;
