@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: 'Oficinas Emssanar',
-  description: 'Interactive map explorer',
+  description: 'Consulta el mapa interactivo de oficinas Emssanar y encuentra tu punto de atención más cercano.',
 };
 
 export default function RootLayout({
