@@ -46,7 +46,7 @@ export default function Home() {
 
   React.useEffect(() => {
     if (!supabaseUrl || !supabaseApiKey) {
-      setError("Error: Las variables de entorno (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_API_KEY) no están configuradas en el archivo .env. Asegúrate de que el archivo existe y reinicia el servidor.");
+      setError("Error: Las variables de entorno de Supabase no están configuradas. Si estás en desarrollo local, revisa tu archivo .env. Si la aplicación está desplegada, asegúrate de haber configurado las variables de entorno en tu proveedor de hosting (ej. Vercel).");
     }
 
     fetch('/locations.json')
@@ -137,7 +137,7 @@ export default function Home() {
 
   if (error) {
      return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
+      <div className="flex h-screen w-full items-center justify-center bg-background p-4">
         <Alert variant="destructive" className="max-w-lg">
           <AlertTitle>Error de Configuración</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
