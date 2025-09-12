@@ -23,7 +23,9 @@ export async function executeSupabaseQuery(
     throw new Error('Supabase URL o API key no están definidas.');
   }
 
-  const url = `${supabaseUrl}${path}`;
+  // Asegura que no haya una doble barra en la URL final
+  const cleanedUrl = supabaseUrl.endsWith('/') ? supabaseUrl.slice(0, -1) : supabaseUrl;
+  const url = `${cleanedUrl}${path}`;
 
   try {
     const response = await fetch(url, {
