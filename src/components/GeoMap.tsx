@@ -74,7 +74,7 @@ const PopupContent = ({ data }: { data: LocationInfo }) => `
         <div class="space-y-2 pt-2">
             <details class="group">
               <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-foreground hover:text-accent">
-                Servicios Subsidiados
+                Servicios Subsidiado
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform duration-200 group-open:rotate-180"><path d="m6 9 6 6 6-6"></path></svg>
               </summary>
               <div class="mt-2 text-foreground/80">${createServiceList(data.servicios_sub)}</div>
@@ -84,7 +84,7 @@ const PopupContent = ({ data }: { data: LocationInfo }) => `
 
             <details class="group">
               <summary class="flex items-center justify-between cursor-pointer list-none font-semibold text-foreground hover:text-accent pt-2">
-                Servicios Contributivos
+                Servicios Contributivo
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 transition-transform duration-200 group-open:rotate-180"><path d="m6 9 6 6 6-6"></path></svg>
               </summary>
               <div class="mt-2 text-foreground/80">${createServiceList(data.servicios_cont)}</div>
@@ -102,14 +102,16 @@ interface GeoMapProps {
   onMarkerClick: (id_dane: string) => void;
   supabaseUrl?: string;
   supabaseKey?: string;
+  activeLocationId?: string;
 }
 
-const GeoMap = ({ locations, center, zoom, onMarkerClick, supabaseUrl, supabaseKey }: GeoMapProps) => {
+const GeoMap = ({ locations, center, zoom, onMarkerClick, supabaseUrl, supabaseKey, activeLocationId }: GeoMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
+  const markerRefs = useRef<{[key: string]: Marker}>({});
 
-  const handleMarkerApiCall = async (id_dane: string, marker: Marker) => {
+  const handleMarkerApiCall = React.useCallback(async (id_dane: string, marker: Marker) => {
     if (!supabaseUrl || !supabaseKey) {
       marker.setPopupContent("Error: Faltan las credenciales de Supabase.").openPopup();
       return;
@@ -138,7 +140,7 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick, supabaseUrl, supabaseK
     } catch (e: any) {
       marker.setPopupContent(`<div class="p-4 font-sans">Error al cargar: ${e.message || 'Error desconocido'}</div>`);
     }
-  };
+  }, [supabaseUrl, supabaseKey]);
 
 
   useEffect(() => {
@@ -175,11 +177,13 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick, supabaseUrl, supabaseK
 
     if (markers && map) {
       markers.clearLayers();
+      markerRefs.current = {};
+
       locations.forEach(loc => {
         const marker = L.marker([loc.latitud, loc.longitud], { icon: defaultIcon });
+        markerRefs.current[loc.id_dane] = marker;
         
-        const initialPopupContent = `<b>${loc.nombre}</b>`;
-        marker.bindPopup(initialPopupContent);
+        marker.bindPopup(`<b>${loc.nombre}</b>`);
         
         marker.on('click', () => {
           onMarkerClick(loc.id_dane);
@@ -189,8 +193,17 @@ const GeoMap = ({ locations, center, zoom, onMarkerClick, supabaseUrl, supabaseK
         markers.addLayer(marker);
       });
     }
-  }, [locations, onMarkerClick, supabaseUrl, supabaseKey]); // Add supabaseUrl and supabaseKey as dependencies
+  }, [locations, onMarkerClick, handleMarkerApiCall]);
   
+  useEffect(() => {
+    if (activeLocationId && markerRefs.current[activeLocationId]) {
+      const marker = markerRefs.current[activeLocationId];
+      if (!marker.isPopupOpen()) {
+        handleMarkerApiCall(activeLocationId, marker);
+      }
+    }
+  }, [activeLocationId, handleMarkerApiCall]);
+
   useEffect(() => {
     const cleanup = () => {
       if (mapInstanceRef.current) {

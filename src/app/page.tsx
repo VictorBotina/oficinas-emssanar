@@ -121,17 +121,34 @@ export default function Home() {
   }
 
   const handleMuniChange = (value: string) => {
-    setSelectedMuni(value);
+    if (value === ALL_MUNICIPALITIES) {
+      setSelectedMuni(value);
+    } else {
+      // Find the location details to ensure the department is correct
+      const location = allLocations.find(loc => loc.id_dane === value);
+      if (location) {
+        // Set department first to populate the municipalities list if needed
+        if(selectedDept !== location.departamento){
+          setSelectedDept(location.departamento || ALL_DEPARTMENTS);
+        }
+        // Set the selected municipality
+        setSelectedMuni(value);
+      }
+    }
   }
 
   const handleMarkerClick = (id_dane: string) => {
     const location = allLocations.find(loc => loc.id_dane === id_dane);
     if (location) {
-      setSelectedDept(location.departamento || ALL_DEPARTMENTS);
-      // Timeout to allow municipalities to populate before setting the selected one
-      setTimeout(() => {
-        setSelectedMuni(id_dane);
-      }, 0);
+      if(selectedDept !== location.departamento){
+        setSelectedDept(location.departamento || ALL_DEPARTMENTS);
+        // Timeout to allow municipalities to populate before setting the selected one
+        setTimeout(() => {
+          setSelectedMuni(id_dane);
+        }, 0);
+      } else {
+         setSelectedMuni(id_dane);
+      }
     }
   }
 
@@ -157,6 +174,7 @@ export default function Home() {
             onMarkerClick={handleMarkerClick}
             supabaseUrl={supabaseUrl}
             supabaseKey={supabaseApiKey}
+            activeLocationId={selectedMuni !== ALL_MUNICIPALITIES ? selectedMuni : undefined}
           />
         </div>
         <div className="absolute top-4 left-4 z-10 w-full max-w-sm lg:max-w-md">
