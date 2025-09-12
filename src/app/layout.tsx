@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'GeoExplorer',
+  title: 'Oficinas Emssanar',
   description: 'Interactive map explorer',
 };
 
