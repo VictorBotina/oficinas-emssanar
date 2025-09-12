@@ -3,13 +3,15 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { MapIcon } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 
 import type { Location } from "@/types";
 
@@ -178,47 +180,61 @@ export default function Home() {
           />
         </div>
         <div className="absolute top-4 left-4 z-10 w-full max-w-sm lg:max-w-md">
-          <Card className="bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle>Filtros</CardTitle>
-              <CardDescription className="text-[14px]">
-                Selecciona un departamento y un municipio para filtrar, y luego{" "}
-                <span className="font-bold">
-                  haz clic sobre el ícono de la ubicación en el mapa para consultar la información detallada.
-                </span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="department-select">Departamento</Label>
-                <Select value={selectedDept} onValueChange={handleDeptChange}>
-                  <SelectTrigger id="department-select">
-                    <SelectValue placeholder="Selecciona un departamento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ALL_DEPARTMENTS}>Todos los Departamentos</SelectItem>
-                    {departments.map(dept => (
-                      <SelectItem key={dept} value={dept} className="capitalize">{dept}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="municipality-select">Municipio</Label>
-                <Select value={selectedMuni} onValueChange={handleMuniChange} disabled={selectedDept === ALL_DEPARTMENTS}>
-                  <SelectTrigger id="municipality-select">
-                    <SelectValue placeholder="Selecciona un municipio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ALL_MUNICIPALITIES}>Todos los Municipios</SelectItem>
-                    {municipalities.map(muni => (
-                      <SelectItem key={muni.id_dane} value={muni.id_dane}>{muni.nombre}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+          <Collapsible defaultOpen={true}>
+            <Card className="bg-white/80 backdrop-blur-sm">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Filtros</CardTitle>
+                  <CardDescription className="text-[14px]">
+                    Selecciona un departamento y un municipio para filtrar.
+                  </CardDescription>
+                </div>
+                 <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="w-9 p-0">
+                    <ChevronsUpDown className="h-4 w-4" />
+                    <span className="sr-only">Toggle</span>
+                  </Button>
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="department-select">Departamento</Label>
+                    <Select value={selectedDept} onValueChange={handleDeptChange}>
+                      <SelectTrigger id="department-select">
+                        <SelectValue placeholder="Selecciona un departamento" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={ALL_DEPARTMENTS}>Todos los Departamentos</SelectItem>
+                        {departments.map(dept => (
+                          <SelectItem key={dept} value={dept} className="capitalize">{dept}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="municipality-select">Municipio</Label>
+                    <Select value={selectedMuni} onValueChange={handleMuniChange} disabled={selectedDept === ALL_DEPARTMENTS}>
+                      <SelectTrigger id="municipality-select">
+                        <SelectValue placeholder="Selecciona un municipio" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={ALL_MUNICIPALITIES}>Todos los Municipios</SelectItem>
+                        {municipalities.map(muni => (
+                          <SelectItem key={muni.id_dane} value={muni.id_dane}>{muni.nombre}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                   <CardDescription className="text-xs pt-2">
+                    <span className="font-bold">
+                      Haz clic sobre el ícono de la ubicación en el mapa para consultar la información detallada.
+                    </span>
+                  </CardDescription>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
         </div>
       </main>
     </div>
